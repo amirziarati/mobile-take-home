@@ -7,6 +7,8 @@ public class NetworkRequest {
 
     private String url = "";
     private List<QueryParameter> queryParameters = new ArrayList<>();
+    private String method;
+    private String body;
 
     private void setUrl(String url) {
         this.url = url.trim();
@@ -14,6 +16,22 @@ public class NetworkRequest {
 
     private void setQueryParameters(List<QueryParameter> queryParameters) {
         this.queryParameters = queryParameters;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 
     @Override
@@ -46,11 +64,24 @@ public class NetworkRequest {
         }
 
         public Builder setQueryParameters(QueryParameter... parameters) {
-            List<QueryParameter> list = new ArrayList<>();
-            for (int i = 0; i < parameters.length; i++) {
-                list.add(parameters[i]);
+            if (parameters != null) {
+                List<QueryParameter> list = new ArrayList<>();
+                for (int i = 0; i < parameters.length; i++) {
+                    if (parameters[i] != null)
+                        list.add(parameters[i]);
+                }
+                networkRequest.setQueryParameters(list);
             }
-            networkRequest.setQueryParameters(list);
+            return this;
+        }
+
+        public Builder setMethod(String method) {
+            networkRequest.setMethod(method);
+            return this;
+        }
+
+        public Builder setBody(String body) {
+            networkRequest.setBody(body);
             return this;
         }
 
