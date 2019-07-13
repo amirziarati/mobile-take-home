@@ -6,42 +6,50 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import java.util.HashMap;
+import com.gustlogix.rickandmorty.repo.RepositoryCallback;
+import com.gustlogix.rickandmorty.repo.local.downloadcache.CacheEntryNotFoundException;
+import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheManager;
 
 public class ImageDownloaderImpl implements ImageDownloader {
 
-    //TODO: persis cache in DB
-    //TODO: create LRU cache manager to limit the cache size
-    HashMap<String, String> mapUrlFileNameCache = new HashMap<>();
     DownloadHelper downloadHelper;
+    FileCacheManager fileCacheManager;
 
-    public ImageDownloaderImpl(DownloadHelper downloadHelper) {
+    public ImageDownloaderImpl(DownloadHelper downloadHelper,
+                               FileCacheManager fileCacheManager) {
         this.downloadHelper = downloadHelper;
+        this.fileCacheManager = fileCacheManager;
     }
 
     @Override
     public void loadImage(final String url, final ImageView imageView, final ProgressBar progressBar) {
-        if (mapUrlFileNameCache.containsKey(url)) {
-            String bmpFileAddress = mapUrlFileNameCache.get(url);
-            showFileInView(bmpFileAddress, imageView, progressBar);
-        } else {
-            downloadAndSaveImage(url, new DownloadManagerCallback() {
-                @Override
-                public void onDone(String fileName) {
-                    if (!mapUrlFileNameCache.containsKey(url))
-                        mapUrlFileNameCache.put(url, fileName);
-                    showFileInView(fileName, imageView, progressBar);
-                }
+        fileCacheManager.retrieve(url, new RepositoryCallback<String>() {
+            @Override
+            public void onSuccess(String bmpFileAddress) {
+                showFileInView(bmpFileAddress, imageView, progressBar);
+            }
 
-                @Override
-                public void onFail(Exception e) {
-                    imageView.setImageBitmap(null);
-                    if (progressBar != null)
-                        progressBar.setVisibility(View.GONE);
-                }
-            });
+            @Override
+            public void onError(Exception e) {
+                if (e instanceof CacheEntryNotFoundException) {
+                    downloadAndSaveImage(url, new DownloadManagerCallback() {
+                        @Override
+                        public void onDone(String fileName) {
+                            fileCacheManager.cache(url, fileName);
+                            showFileInView(fileName, imageView, progressBar);
+                        }
 
-        }
+                        @Override
+                        public void onFail(Exception e) {
+                            imageView.setImageBitmap(null);
+                            if (progressBar != null)
+                                progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            }
+        });
+
     }
 
     private void showFileInView(String bmpFileAddress, ImageView imageView, ProgressBar progressBar) {
