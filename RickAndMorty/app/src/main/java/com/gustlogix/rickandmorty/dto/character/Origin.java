@@ -2,7 +2,9 @@
 package com.gustlogix.rickandmorty.dto.character;
 
 
-public class Origin {
+import java.io.Serializable;
+
+public class Origin implements Serializable {
 
     private String name;
     private String url;

@@ -1,9 +1,10 @@
 
 package com.gustlogix.rickandmorty.dto.character;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class CharacterResult {
+public class CharacterResult implements Serializable {
 
     private Integer id;
     private String name;

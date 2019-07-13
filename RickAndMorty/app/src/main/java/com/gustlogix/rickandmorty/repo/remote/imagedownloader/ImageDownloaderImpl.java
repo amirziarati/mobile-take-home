@@ -1,30 +1,27 @@
 package com.gustlogix.rickandmorty.repo.remote.imagedownloader;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheManager;
-
 public class ImageDownloaderImpl implements ImageDownloader {
 
-    DownloadHelper downloadHelper;
+    private DownloadHelper downloadHelper;
 
-    public ImageDownloaderImpl(DownloadHelper downloadHelper,
-                               FileCacheManager fileCacheManager) {
+    public ImageDownloaderImpl(DownloadHelper downloadHelper) {
         this.downloadHelper = downloadHelper;
     }
 
     @Override
-    public void loadImage(final String url, final ImageView imageView, final ProgressBar progressBar) {
-        if (url.trim().isEmpty())
-        {
+    public void loadImage(Context context, final String url, final ImageView imageView, final ProgressBar progressBar) {
+        if (url.trim().isEmpty()) {
             showResultImageInView(imageView, progressBar, null);
         }
 
-        downloadHelper.download(url, new DownloadManagerCallback() {
+        downloadHelper.download(context, url, new DownloadManagerCallback() {
             @Override
             public void onDone(String fileName) {
                 showFileInView(fileName, imageView, progressBar);
@@ -37,6 +34,10 @@ public class ImageDownloaderImpl implements ImageDownloader {
         });
     }
 
+    @Override
+    public void loadImage(Context context, String url, ImageView imageView) {
+        loadImage(context, url, imageView, null);
+    }
 
     private void showFileInView(String bmpFileAddress, ImageView imageView, ProgressBar progressBar) {
         Bitmap bmp = getScaleDownBitmap(bmpFileAddress, imageView.getWidth(), imageView.getHeight());
@@ -75,17 +76,5 @@ public class ImageDownloaderImpl implements ImageDownloader {
         options.inSampleSize = inSampleSize;
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFile(bmpFileAddress, options);
-    }
-
-    private void downloadAndSaveImage(String url, DownloadManagerCallback callback) {
-        if (url.trim().isEmpty())
-            callback.onFail(new IllegalArgumentException("url is invalid"));
-
-        downloadHelper.download(url, callback);
-    }
-
-    @Override
-    public void loadImage(String url, ImageView imageView) {
-        loadImage(url, imageView, null);
     }
 }

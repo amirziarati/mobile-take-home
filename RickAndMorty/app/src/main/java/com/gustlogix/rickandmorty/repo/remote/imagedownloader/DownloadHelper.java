@@ -1,5 +1,7 @@
 package com.gustlogix.rickandmorty.repo.remote.imagedownloader;
 
+import android.content.Context;
+
 public interface DownloadHelper {
-    public void download(String url, DownloadManagerCallback callback);
+    void download(Context context, String url, DownloadManagerCallback callback);
 }

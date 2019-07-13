@@ -8,6 +8,6 @@ public interface FileCacheLocalRepo {
     void insert(FileCacheEntry fileCacheEntry);
     void update(FileCacheEntry fileCacheEntry);
     void remove(FileCacheEntry fileCacheEntry);
-    FileCacheEntry retrieve(String url, RepositoryCallback<FileCacheEntry> callback);
-    List<FileCacheEntry> retrieveAllSortedByLastRetrieved(RepositoryCallback<List<FileCacheEntry>> callback);
+    void retrieve(String url, RepositoryCallback<FileCacheEntry> callback);
+    void retrieveAllSortedByLastRetrieved(RepositoryCallback<List<FileCacheEntry>> callback);
 }

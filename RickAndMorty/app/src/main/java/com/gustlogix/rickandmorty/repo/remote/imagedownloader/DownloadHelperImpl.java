@@ -1,11 +1,15 @@
 package com.gustlogix.rickandmorty.repo.remote.imagedownloader;
 
+import android.Manifest;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 
 import com.gustlogix.rickandmorty.repo.RepositoryCallback;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.CacheEntryNotFoundException;
@@ -18,28 +22,39 @@ import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class DownloadHelperImpl implements DownloadHelper {
 
-    private Context context;
     private String downloadPath;
-    private DownloadManager downloadManager;
     FileCacheManager fileCacheManager;
     HashMap<Long, DownloadInfo> mapIdDownloadInfo = new HashMap<>();
     private static DownloadHelperImpl instance;
 
-    private DownloadHelperImpl(Context context, String downloadPath, FileCacheManager fileCacheManager) {
-        this.context = context;
+    private DownloadHelperImpl(String downloadPath, FileCacheManager fileCacheManager) {
         this.downloadPath = downloadPath;
         this.fileCacheManager = fileCacheManager;
-        downloadManager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
     }
 
-    public static DownloadHelperImpl getInstance(Context context, String downloadPath, FileCacheManager fileCacheManager) {
+    public static DownloadHelperImpl getInstance(String downloadPath, FileCacheManager fileCacheManager) {
         if (instance == null)
-            instance = new DownloadHelperImpl(context, downloadPath, fileCacheManager);
+            instance = new DownloadHelperImpl(downloadPath, fileCacheManager);
         return instance;
     }
 
     @Override
-    public void download(final String url, final DownloadManagerCallback callback) {
+    public void download(Context context, final String url, final DownloadManagerCallback callback) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                callback.onFail(new SecurityException("write external memory not granted"));
+                return;
+            }
+        }
+
+        final DownloadManager downloadManager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
+        try {
+            context.registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        } catch (IllegalArgumentException e) {
+
+            e.printStackTrace();
+        }
+
         fileCacheManager.retrieve(url, new RepositoryCallback<String>() {
             @Override
             public void onSuccess(String fileName) {
@@ -50,7 +65,7 @@ public class DownloadHelperImpl implements DownloadHelper {
             public void onError(Exception e) {
                 if (e instanceof CacheEntryNotFoundException) {
                     try {
-                        String fileName = downloadPath + System.currentTimeMillis();
+                        String fileName = new File(downloadPath, System.currentTimeMillis() + "").getAbsolutePath();
 
                         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
                                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
@@ -59,7 +74,7 @@ public class DownloadHelperImpl implements DownloadHelper {
                         long downloadID = downloadManager.enqueue(request);
                         mapIdDownloadInfo.put(downloadID, new DownloadInfo(downloadID, callback, fileName, url));
                     } catch (Exception ex) {
-                        callback.onFail(e);
+                        callback.onFail(ex);
                     }
                 } else {
                     callback.onFail(e);
@@ -68,6 +83,13 @@ public class DownloadHelperImpl implements DownloadHelper {
         });
 
 
+    }
+
+    private void StopDownloadService(Context context) {
+        try {
+            context.unregisterReceiver(onDownloadComplete);
+        } catch (Exception e) {
+        }
     }
 
     private BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
@@ -84,7 +106,6 @@ public class DownloadHelperImpl implements DownloadHelper {
                 if (cursor.getCount() > 0) {
                     int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
                     if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                        String file = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME));
                         fileCacheManager.cache(downloadInfo.getUrl(), downloadInfo.fileName);
                         mapIdDownloadInfo.remove(id);
                         downloadInfo.callback.onDone(downloadInfo.fileName);
