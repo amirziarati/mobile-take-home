@@ -1,5 +1,5 @@
 
-package com.gustlogix.rickandmorty.dto;
+package com.gustlogix.rickandmorty.dto.episode;
 
 
 public class Info {

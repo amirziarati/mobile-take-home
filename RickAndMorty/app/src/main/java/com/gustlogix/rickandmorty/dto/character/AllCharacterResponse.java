@@ -1,4 +1,4 @@
-package com.gustlogix.rickandmorty.dto;
+package com.gustlogix.rickandmorty.dto.character;
 
 import java.util.List;
 

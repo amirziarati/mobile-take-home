@@ -1,8 +1,8 @@
 
-package com.gustlogix.rickandmorty.dto;
+package com.gustlogix.rickandmorty.dto.character;
 
 
-public class Origin {
+public class Location {
 
     private String name;
     private String url;

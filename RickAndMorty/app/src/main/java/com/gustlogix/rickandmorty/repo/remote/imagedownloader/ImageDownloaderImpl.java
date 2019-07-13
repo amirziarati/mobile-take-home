@@ -6,55 +6,45 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.gustlogix.rickandmorty.repo.RepositoryCallback;
-import com.gustlogix.rickandmorty.repo.local.downloadcache.CacheEntryNotFoundException;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheManager;
 
 public class ImageDownloaderImpl implements ImageDownloader {
 
     DownloadHelper downloadHelper;
-    FileCacheManager fileCacheManager;
 
     public ImageDownloaderImpl(DownloadHelper downloadHelper,
                                FileCacheManager fileCacheManager) {
         this.downloadHelper = downloadHelper;
-        this.fileCacheManager = fileCacheManager;
     }
 
     @Override
     public void loadImage(final String url, final ImageView imageView, final ProgressBar progressBar) {
-        fileCacheManager.retrieve(url, new RepositoryCallback<String>() {
+        if (url.trim().isEmpty())
+        {
+            showResultImageInView(imageView, progressBar, null);
+        }
+
+        downloadHelper.download(url, new DownloadManagerCallback() {
             @Override
-            public void onSuccess(String bmpFileAddress) {
-                showFileInView(bmpFileAddress, imageView, progressBar);
+            public void onDone(String fileName) {
+                showFileInView(fileName, imageView, progressBar);
             }
 
             @Override
-            public void onError(Exception e) {
-                if (e instanceof CacheEntryNotFoundException) {
-                    downloadAndSaveImage(url, new DownloadManagerCallback() {
-                        @Override
-                        public void onDone(String fileName) {
-                            fileCacheManager.cache(url, fileName);
-                            showFileInView(fileName, imageView, progressBar);
-                        }
-
-                        @Override
-                        public void onFail(Exception e) {
-                            imageView.setImageBitmap(null);
-                            if (progressBar != null)
-                                progressBar.setVisibility(View.GONE);
-                        }
-                    });
-                }
+            public void onFail(Exception e) {
+                showResultImageInView(imageView, progressBar, null);
             }
         });
-
     }
+
 
     private void showFileInView(String bmpFileAddress, ImageView imageView, ProgressBar progressBar) {
         Bitmap bmp = getScaleDownBitmap(bmpFileAddress, imageView.getWidth(), imageView.getHeight());
-        imageView.setImageBitmap(bmp);
+        showResultImageInView(imageView, progressBar, bmp);
+    }
+
+    private void showResultImageInView(ImageView imageView, ProgressBar progressBar, Bitmap o) {
+        imageView.setImageBitmap(o);
         if (progressBar != null)
             progressBar.setVisibility(View.GONE);
     }

@@ -1,26 +1,21 @@
 package com.gustlogix.rickandmorty.repo.remote.character;
 
-import com.gustlogix.rickandmorty.dto.CharacterResult;
+import com.gustlogix.rickandmorty.dto.character.CharacterResult;
 import com.gustlogix.rickandmorty.repo.RepositoryCallback;
-import com.gustlogix.rickandmorty.repo.remote.character.deserializer.MultipleCharacterDeserializer;
-import com.gustlogix.rickandmorty.repo.remote.character.deserializer.SingleCharacterDeserializer;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkRequest;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkService;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkServiceCallback;
-import com.gustlogix.rickandmorty.repo.remote.network.NetworkServiceImpl;
 
 import java.util.List;
 
 public class CharacterRemoteServiceImpl implements CharacterRemoteService {
 
-    SingleCharacterDeserializer singleCharacterDeserializer;
-    MultipleCharacterDeserializer multipleCharacterDeserializer;
+    private NetworkService<CharacterResult> singleNetworkService;
+    private NetworkService<List<CharacterResult>> multipleNetworkService;
 
-    public CharacterRemoteServiceImpl(SingleCharacterDeserializer singleCharacterDeserializer,
-                                      MultipleCharacterDeserializer multipleCharacterDeserializer)
-    {
-        this.multipleCharacterDeserializer = multipleCharacterDeserializer;
-        this.singleCharacterDeserializer = singleCharacterDeserializer;
+    public CharacterRemoteServiceImpl(NetworkService<CharacterResult> singleNetworkService, NetworkService<List<CharacterResult>> multipleNetworkService) {
+        this.singleNetworkService = singleNetworkService;
+        this.multipleNetworkService = multipleNetworkService;
     }
 
     @Override
@@ -30,7 +25,7 @@ public class CharacterRemoteServiceImpl implements CharacterRemoteService {
                 .setMethod(NetworkService.GET)
                 .build();
 
-        new NetworkServiceImpl(singleCharacterDeserializer).call(networkRequest, new NetworkServiceCallback<CharacterResult>() {
+        singleNetworkService.call(networkRequest, new NetworkServiceCallback<CharacterResult>() {
 
             @Override
             public void onResponse(CharacterResult response) {
@@ -58,7 +53,7 @@ public class CharacterRemoteServiceImpl implements CharacterRemoteService {
                 .setMethod(NetworkService.GET)
                 .build();
 
-        new NetworkServiceImpl(multipleCharacterDeserializer).call(networkRequest, new NetworkServiceCallback<List<CharacterResult>>() {
+        multipleNetworkService.call(networkRequest, new NetworkServiceCallback<List<CharacterResult>>() {
 
             @Override
             public void onResponse(List<CharacterResult> response) {

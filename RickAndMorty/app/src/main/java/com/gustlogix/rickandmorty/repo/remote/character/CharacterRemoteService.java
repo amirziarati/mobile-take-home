@@ -1,6 +1,6 @@
 package com.gustlogix.rickandmorty.repo.remote.character;
 
-import com.gustlogix.rickandmorty.dto.CharacterResult;
+import com.gustlogix.rickandmorty.dto.character.CharacterResult;
 import com.gustlogix.rickandmorty.repo.RepositoryCallback;
 
 import java.util.List;
