@@ -5,8 +5,12 @@ import com.gustlogix.rickandmorty.dto.character.Location;
 import com.gustlogix.rickandmorty.dto.character.Origin;
 import com.gustlogix.rickandmorty.repo.remote.network.JsonDeserializer;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SingleCharacterDeserializerImpl implements JsonDeserializer<CharacterResult> {
 
@@ -31,7 +35,21 @@ public class SingleCharacterDeserializerImpl implements JsonDeserializer<Charact
 
         JSONObject locationJsonObject = jsonObject.getJSONObject("location");
         characterResult.setLocation(extractLocation(locationJsonObject));
+
+        JSONArray episodesJsonArray = jsonObject.getJSONArray("episode");
+        characterResult.setEpisode(extractEpisodes(episodesJsonArray));
+
+        characterResult.setLocation(extractLocation(locationJsonObject));
         return characterResult;
+    }
+
+    private List<String> extractEpisodes(JSONArray episodesJsonArray) throws JSONException {
+        List<String> episodes = new ArrayList<>();
+        for (int i = 0; i < episodesJsonArray.length(); i++) {
+            String episode = episodesJsonArray.getString(i);
+            episodes.add(episode);
+        }
+        return episodes;
     }
 
     private Location extractLocation(JSONObject locationObject) throws JSONException {

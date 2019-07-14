@@ -64,13 +64,18 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
         try {
             if (characterIds.size() > 0) {
                 String[] selectionArgs = new String[characterIds.size()];
+                StringBuilder selectionPlaceHolders = new StringBuilder();
+                selectionPlaceHolders.append("(");
                 for (int i = 0; i < characterIds.size(); i++) {
                     selectionArgs[i] = characterIds.get(i).toString();
+                    selectionPlaceHolders.append("?,");
                 }
+                selectionPlaceHolders.replace(selectionPlaceHolders.length() - 1, selectionPlaceHolders.length(), ")");
+
                 Cursor cursor = db.query(
                         DB.CHARACTER.TABLE_NAME,
                         getCharacterProjection(),
-                        getCharacterSelection(),
+                        DB.CHARACTER.C_ID + " IN " + selectionPlaceHolders.toString(),
                         selectionArgs,
                         null,
                         null,
@@ -230,9 +235,8 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
             values.put(DB.CHARACTER.C_URL, characterResult.getUrl());
             values.put(DB.CHARACTER.C_IMAGE, characterResult.getImage());
             values.put(DB.CHARACTER.C_CREATED, characterResult.getCreated());
-            long id = db.insert(DB.CHARACTER.TABLE_NAME, null, values);
-            if(id == -1)
-            {
+            long id = db.insertWithOnConflict(DB.CHARACTER.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+            if (id == -1) {
                 id = db.update(DB.CHARACTER.TABLE_NAME, values, DB.CHARACTER.C_ID, new String[]{characterResult.getId().toString()});
             }
             return id;
@@ -264,8 +268,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
             values.put(DB.EPISODE.C_URL, episodeResult.getUrl());
             values.put(DB.EPISODE.C_CREATED, episodeResult.getCreated());
             long id = db.insertWithOnConflict(DB.EPISODE.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-            if(id == -1)
-            {
+            if (id == -1) {
                 id = db.update(DB.EPISODE.TABLE_NAME, values, DB.EPISODE.C_ID, new String[]{episodeResult.getId().toString()});
             }
             return id;
@@ -377,7 +380,8 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
                 DB.CHARACTER.C_LOCATION_URL,
                 DB.CHARACTER.C_COMMA_SEPARATED_EPISODES,
                 DB.CHARACTER.C_URL,
-                DB.CHARACTER.C_CREATED
+                DB.CHARACTER.C_CREATED,
+                DB.CHARACTER.C_IMAGE
         };
         return projection;
     }
