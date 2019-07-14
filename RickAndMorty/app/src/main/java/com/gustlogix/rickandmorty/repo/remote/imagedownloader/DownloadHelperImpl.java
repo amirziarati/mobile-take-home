@@ -1,30 +1,25 @@
 package com.gustlogix.rickandmorty.repo.remote.imagedownloader;
 
-import android.Manifest;
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
+import android.os.AsyncTask;
 
 import com.gustlogix.rickandmorty.repo.RepositoryCallback;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.CacheEntryNotFoundException;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheManager;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
-
-import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class DownloadHelperImpl implements DownloadHelper {
 
     private String downloadPath;
     FileCacheManager fileCacheManager;
-    HashMap<Long, DownloadInfo> mapIdDownloadInfo = new HashMap<>();
+    HashMap<String, DownloadInfo> mapFileNameDownloadingFileInfo = new HashMap<>();
     private static DownloadHelperImpl instance;
 
     private DownloadHelperImpl(String downloadPath, FileCacheManager fileCacheManager) {
@@ -39,23 +34,14 @@ public class DownloadHelperImpl implements DownloadHelper {
     }
 
     @Override
-    public void download(Context context, final String url, final DownloadManagerCallback callback) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                callback.onFail(new SecurityException("write external memory not granted"));
-                return;
-            }
+    public void download(Context context, final String urlString, final DownloadManagerCallback callback) {
+
+        if (mapFileNameDownloadingFileInfo.containsKey(urlString)) {
+            //file is already downloading
+            mapFileNameDownloadingFileInfo.get(urlString).addCallback(callback);
         }
 
-        final DownloadManager downloadManager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
-        try {
-            context.registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-        } catch (IllegalArgumentException e) {
-
-            e.printStackTrace();
-        }
-
-        fileCacheManager.retrieve(url, new RepositoryCallback<String>() {
+        fileCacheManager.retrieve(urlString, new RepositoryCallback<String>() {
             @Override
             public void onSuccess(String fileName) {
                 callback.onDone(fileName);
@@ -64,70 +50,95 @@ public class DownloadHelperImpl implements DownloadHelper {
             @Override
             public void onError(Exception e) {
                 if (e instanceof CacheEntryNotFoundException) {
-                    try {
-                        String fileName = new File(downloadPath, System.currentTimeMillis() + "").getAbsolutePath();
-
-                        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
-                                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
-                                .setDestinationUri(Uri.fromFile(new File(fileName)));
-
-                        long downloadID = downloadManager.enqueue(request);
-                        mapIdDownloadInfo.put(downloadID, new DownloadInfo(downloadID, callback, fileName, url));
-                    } catch (Exception ex) {
-                        callback.onFail(ex);
-                    }
+                    String fileName = downloadPath + "/" + System.currentTimeMillis();
+                    DownloadInfo downloadInfo = new DownloadInfo(callback, fileName, urlString);
+                    new DownloadTask().execute(downloadInfo);
                 } else {
                     callback.onFail(e);
                 }
             }
         });
-
-
     }
 
-    private void StopDownloadService(Context context) {
-        try {
-            context.unregisterReceiver(onDownloadComplete);
-        } catch (Exception e) {
-        }
-    }
-
-    private BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
+    private class DownloadTask extends AsyncTask<DownloadInfo, Void, DownloadResult> {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-            DownloadInfo downloadInfo = mapIdDownloadInfo.get(id);
+        protected DownloadResult doInBackground(DownloadInfo... downloadInfos) {
+            DownloadInfo downloadInfo = downloadInfos[0];
+            try {
+                URL url = new URL(downloadInfo.getUrl());
+                InputStream in = null;
+                in = url.openStream();
+                File file = new File(downloadInfo.fileName);
+                mapFileNameDownloadingFileInfo.put(downloadInfo.getUrl(), downloadInfo);
+                FileOutputStream fos = new FileOutputStream(file);
 
-            DownloadManager.Query query = new DownloadManager.Query();
-            query.setFilterById(id);
-            DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            Cursor cursor = manager.query(query);
-            if (cursor.moveToFirst()) {
-                if (cursor.getCount() > 0) {
-                    int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                        fileCacheManager.cache(downloadInfo.getUrl(), downloadInfo.fileName);
-                        mapIdDownloadInfo.remove(id);
-                        downloadInfo.callback.onDone(downloadInfo.fileName);
-                    } else {
-                        int message = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
-                        downloadInfo.callback.onFail(new Exception("download failed : " + message));
-                    }
+                System.out.println("reading from resource and writing to file...");
+                int length = -1;
+                byte[] buffer = new byte[1024];// buffer for portion of data from connection
+                while ((length = in.read(buffer)) > -1) {
+                    fos.write(buffer, 0, length);
+                }
+                fos.close();
+                in.close();
+                System.out.println("File downloaded");
+                return new DownloadResult(downloadInfo, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return new DownloadResult(downloadInfo, e);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(DownloadResult downloadResult) {
+            super.onPostExecute(downloadResult);
+            DownloadInfo downloadInfo = downloadResult.getDownloadInfo();
+            if (downloadResult.exception != null) {
+                for (DownloadManagerCallback callbackEntry : downloadInfo.getCallbacks()) {
+                    callbackEntry.onFail(downloadResult.getException());
+                }
+            } else {
+                fileCacheManager.cache(downloadInfo.getUrl(), downloadInfo.fileName);
+                for (DownloadManagerCallback callbackEntry : downloadInfo.getCallbacks()) {
+                    callbackEntry.onDone(downloadInfo.fileName);
                 }
             }
-
+            mapFileNameDownloadingFileInfo.remove(downloadInfo.getUrl());
         }
-    };
+    }
+
+    class DownloadResult {
+        private DownloadInfo downloadInfo;
+        private Exception exception;
+
+        public DownloadResult(DownloadInfo downloadInfo, Exception exception) {
+            this.downloadInfo = downloadInfo;
+            this.exception = exception;
+        }
+
+        public DownloadInfo getDownloadInfo() {
+            return downloadInfo;
+        }
+
+        public void setDownloadInfo(DownloadInfo downloadInfo) {
+            this.downloadInfo = downloadInfo;
+        }
+
+        public Exception getException() {
+            return exception;
+        }
+
+        public void setException(Exception exception) {
+            this.exception = exception;
+        }
+    }
 
     class DownloadInfo {
-        long id;
-        DownloadManagerCallback callback;
-        String fileName;
-        String url;
+        private ArrayList<DownloadManagerCallback> callbacks = new ArrayList<>();
+        private String fileName;
+        private String url;
 
-        public DownloadInfo(long id, DownloadManagerCallback callback, String fileName, String url) {
-            this.id = id;
-            this.callback = callback;
+        public DownloadInfo(DownloadManagerCallback callback, String fileName, String url) {
+            this.callbacks.add(callback);
             this.fileName = fileName;
             this.url = url;
         }
@@ -140,20 +151,12 @@ public class DownloadHelperImpl implements DownloadHelper {
             this.url = url;
         }
 
-        public long getId() {
-            return id;
+        public ArrayList<DownloadManagerCallback> getCallbacks() {
+            return callbacks;
         }
 
-        public void setId(long id) {
-            this.id = id;
-        }
-
-        public DownloadManagerCallback getCallback() {
-            return callback;
-        }
-
-        public void setCallback(DownloadManagerCallback callback) {
-            this.callback = callback;
+        public void addCallback(DownloadManagerCallback callback) {
+            this.callbacks.add(callback);
         }
 
         public String getFileName() {

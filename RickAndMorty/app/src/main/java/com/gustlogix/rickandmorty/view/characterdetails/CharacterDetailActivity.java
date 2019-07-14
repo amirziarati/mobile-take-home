@@ -1,9 +1,6 @@
 package com.gustlogix.rickandmorty.view.characterdetails;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,7 +18,7 @@ import com.gustlogix.rickandmorty.repo.remote.imagedownloader.ImageDownloaderImp
 
 import java.util.List;
 
-public class CharacterDetailActivity extends Activity {
+public class CharacterDetailActivity extends Activity implements CharacterDetailsView {
 
     public static final String CHARACTER_DETAILS_ARG = "character_details";
     ImageView imgCharacter;
@@ -32,6 +29,7 @@ public class CharacterDetailActivity extends Activity {
     TextView tvLocation;
 
     ImageDownloader imageDownloader;
+    CharacterDetailsPresenter presenter = new CharacterDetailsPresenterImpl(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,18 +44,6 @@ public class CharacterDetailActivity extends Activity {
         tvStatus = findViewById(R.id.tvStatus);
         tvLocation = findViewById(R.id.tvLocation);
         tvGender = findViewById(R.id.tvGender);
-
-        tvName.setText(characterDetails.getName());
-        tvLocation.setText(characterDetails.getLocation().getName());
-        tvGender.setText(characterDetails.getGender());
-        tvSpecies.setText(characterDetails.getSpecies());
-        tvStatus.setText(characterDetails.getStatus());
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                this.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
-            }
-        }
 
         imageDownloader = new ImageDownloaderImpl(DownloadHelperImpl.getInstance(this.getExternalCacheDir() + "downloads", new FileCacheManagerImpl(new FileCacheLocalRepo() {
             @Override
@@ -86,21 +72,32 @@ public class CharacterDetailActivity extends Activity {
             }
         }, this.getExternalCacheDir() + "downloads", 20)));
 
+
+        presenter.onInit(characterDetails);
+    }
+
+    @Override
+    public void showCharacterDetails(CharacterResult characterDetails) {
+        tvName.setText(characterDetails.getName());
+        tvLocation.setText(characterDetails.getLocation().getName());
+        tvGender.setText(characterDetails.getGender());
+        tvSpecies.setText(characterDetails.getSpecies());
+        tvStatus.setText(characterDetails.getStatus());
         imageDownloader.loadImage(CharacterDetailActivity.this, characterDetails.getImage(), imgCharacter);
     }
 
-//    @Override
-//    public void showProgress() {
-//    }
-//
-//    @Override
-//    public void hideProgress() {
-//    }
-//
-//    @Override
-//    public void showMessage(String message) {
-//        Toast.makeText(CharacterDetailActivity.this, message, Toast.LENGTH_LONG).show();
-//        Log.i("R&M", message);
-//    }
+    @Override
+    public void showProgress() {
 
+    }
+
+    @Override
+    public void hideProgress() {
+
+    }
+
+    @Override
+    public void showMessage(String message) {
+
+    }
 }
