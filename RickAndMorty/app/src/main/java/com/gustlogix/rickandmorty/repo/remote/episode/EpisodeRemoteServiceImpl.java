@@ -2,7 +2,7 @@ package com.gustlogix.rickandmorty.repo.remote.episode;
 
 import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
-import com.gustlogix.rickandmorty.repo.RepositoryCallback;
+import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkRequest;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkService;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkServiceCallback;
@@ -24,7 +24,7 @@ public class EpisodeRemoteServiceImpl implements EpisodeRemoteService {
     }
 
     @Override
-    public void fetchSingleEpisode(int id, final RepositoryCallback<EpisodeResult> callback) {
+    public void fetchSingleEpisode(int id, final RemoteRepositoryCallback<EpisodeResult> callback) {
         NetworkRequest request = new NetworkRequest
                 .Builder()
                 .setUrl("https://rickandmortyapi.com/api/episode/" + id)
@@ -44,7 +44,7 @@ public class EpisodeRemoteServiceImpl implements EpisodeRemoteService {
     }
 
     @Override
-    public void fetchMultipleEpisodes(List<Integer> episodeIds, final RepositoryCallback<List<EpisodeResult>> callback) {
+    public void fetchMultipleEpisodes(List<Integer> episodeIds, final RemoteRepositoryCallback<List<EpisodeResult>> callback) {
         StringBuilder sb = new StringBuilder();
         sb.append("https://rickandmortyapi.com/api/episode/");
         for (int id : episodeIds) {
@@ -71,7 +71,7 @@ public class EpisodeRemoteServiceImpl implements EpisodeRemoteService {
     }
 
     @Override
-    public void fetchAllEpisodes(int page, final RepositoryCallback<AllEpisodeResponse> callback) {
+    public void fetchAllEpisodes(int page, final RemoteRepositoryCallback<AllEpisodeResponse> callback) {
         NetworkRequest request = new NetworkRequest
                 .Builder()
                 .setUrl("https://rickandmortyapi.com/api/episode/")

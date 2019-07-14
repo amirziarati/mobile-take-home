@@ -1,11 +1,13 @@
 package com.gustlogix.rickandmorty.repo.remote.imagedownloader;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
-import com.gustlogix.rickandmorty.repo.RepositoryCallback;
+import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.CacheEntryNotFoundException;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheManager;
+import com.gustlogix.rickandmorty.thread.ApplicationThreadPool;
+import com.gustlogix.rickandmorty.thread.Task;
+import com.gustlogix.rickandmorty.thread.TaskCallback;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,68 +43,86 @@ public class DownloadHelperImpl implements DownloadHelper {
             mapFileNameDownloadingFileInfo.get(urlString).addCallback(callback);
         }
 
-        fileCacheManager.retrieve(urlString, new RepositoryCallback<String>() {
+        fileCacheManager.retrieve(urlString, new RemoteRepositoryCallback<String>() {
             @Override
             public void onSuccess(String fileName) {
                 callback.onDone(fileName);
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onError(final Exception e) {
                 if (e instanceof CacheEntryNotFoundException) {
+                    if (!new File(downloadPath).exists()) {
+                        new File(downloadPath).mkdirs();
+                    }
                     String fileName = downloadPath + "/" + System.currentTimeMillis();
-                    DownloadInfo downloadInfo = new DownloadInfo(callback, fileName, urlString);
-                    new DownloadTask().execute(downloadInfo);
+                    final DownloadInfo downloadInfo = new DownloadInfo(callback, fileName, urlString);
+
+                    downloadInBackgroundThreadAndReturnResultToCallback(downloadInfo);
+
                 } else {
                     callback.onFail(e);
                 }
             }
+
         });
     }
 
-    private class DownloadTask extends AsyncTask<DownloadInfo, Void, DownloadResult> {
-        @Override
-        protected DownloadResult doInBackground(DownloadInfo... downloadInfos) {
-            DownloadInfo downloadInfo = downloadInfos[0];
-            try {
-                URL url = new URL(downloadInfo.getUrl());
-                InputStream in = null;
-                in = url.openStream();
-                File file = new File(downloadInfo.fileName);
-                mapFileNameDownloadingFileInfo.put(downloadInfo.getUrl(), downloadInfo);
-                FileOutputStream fos = new FileOutputStream(file);
+    private void downloadInBackgroundThreadAndReturnResultToCallback(final DownloadInfo downloadInfo) {
 
-                System.out.println("reading from resource and writing to file...");
-                int length = -1;
-                byte[] buffer = new byte[1024];// buffer for portion of data from connection
-                while ((length = in.read(buffer)) > -1) {
-                    fos.write(buffer, 0, length);
-                }
-                fos.close();
-                in.close();
-                System.out.println("File downloaded");
-                return new DownloadResult(downloadInfo, null);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return new DownloadResult(downloadInfo, e);
+        ApplicationThreadPool.execute(new Task<DownloadResult>() {
+            @Override
+            public DownloadResult execute() {
+                return downloadFile(downloadInfo);
             }
-        }
-
-        @Override
-        protected void onPostExecute(DownloadResult downloadResult) {
-            super.onPostExecute(downloadResult);
-            DownloadInfo downloadInfo = downloadResult.getDownloadInfo();
-            if (downloadResult.exception != null) {
-                for (DownloadManagerCallback callbackEntry : downloadInfo.getCallbacks()) {
-                    callbackEntry.onFail(downloadResult.getException());
-                }
-            } else {
-                fileCacheManager.cache(downloadInfo.getUrl(), downloadInfo.fileName);
-                for (DownloadManagerCallback callbackEntry : downloadInfo.getCallbacks()) {
-                    callbackEntry.onDone(downloadInfo.fileName);
+        }, new TaskCallback<DownloadResult>() {
+            @Override
+            public void onResult(DownloadResult downloadResult) {
+                DownloadInfo downloadInfo = downloadResult.getDownloadInfo();
+                if (downloadResult.exception != null) {
+                    onError(downloadResult.exception);
+                } else {
+                    fileCacheManager.cache(downloadInfo.getUrl(), downloadInfo.fileName);
+                    for (DownloadManagerCallback callbackEntry : downloadInfo.getCallbacks()) {
+                        callbackEntry.onDone(downloadInfo.fileName);
+                    }
+                    mapFileNameDownloadingFileInfo.remove(downloadInfo.getUrl());
                 }
             }
-            mapFileNameDownloadingFileInfo.remove(downloadInfo.getUrl());
+
+            @Override
+            public void onError(Exception e) {
+                for (DownloadManagerCallback callbackEntry : downloadInfo.getCallbacks()) {
+                    callbackEntry.onFail(e);
+                }
+                mapFileNameDownloadingFileInfo.remove(downloadInfo.getUrl());
+            }
+        });
+    }
+
+
+    private DownloadResult downloadFile(DownloadInfo downloadInfo) {
+        try {
+            URL url = new URL(downloadInfo.getUrl());
+            InputStream in = null;
+            in = url.openStream();
+            File file = new File(downloadInfo.fileName);
+            mapFileNameDownloadingFileInfo.put(downloadInfo.getUrl(), downloadInfo);
+            FileOutputStream fos = new FileOutputStream(file);
+
+            System.out.println("reading from resource and writing to file...");
+            int length = -1;
+            byte[] buffer = new byte[1024];// buffer for portion of data from connection
+            while ((length = in.read(buffer)) > -1) {
+                fos.write(buffer, 0, length);
+            }
+            fos.close();
+            in.close();
+            System.out.println("File downloaded");
+            return new DownloadResult(downloadInfo, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new DownloadResult(downloadInfo, e);
         }
     }
 

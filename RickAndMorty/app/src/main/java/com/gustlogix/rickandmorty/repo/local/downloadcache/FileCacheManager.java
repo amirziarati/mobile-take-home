@@ -1,8 +1,8 @@
 package com.gustlogix.rickandmorty.repo.local.downloadcache;
 
-import com.gustlogix.rickandmorty.repo.RepositoryCallback;
+import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 
 public interface FileCacheManager {
     void cache(String url, String fileName);
-    void retrieve(String url, RepositoryCallback<String> callback);
+    void retrieve(String url, RemoteRepositoryCallback<String> callback);
 }

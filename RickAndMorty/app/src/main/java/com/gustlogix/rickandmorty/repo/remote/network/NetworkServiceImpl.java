@@ -1,7 +1,10 @@
 package com.gustlogix.rickandmorty.repo.remote.network;
 
-import android.os.AsyncTask;
 import android.util.Log;
+
+import com.gustlogix.rickandmorty.thread.ApplicationThreadPool;
+import com.gustlogix.rickandmorty.thread.Task;
+import com.gustlogix.rickandmorty.thread.TaskCallback;
 
 import org.json.JSONException;
 
@@ -27,105 +30,97 @@ public class NetworkServiceImpl<T> implements NetworkService<T> {
     }
 
     @Override
-    public void call(NetworkRequest networkRequest, NetworkServiceCallback<T> networkServiceCallback) {
-        InnerTask task = new InnerTask(jsonDeserializer);
-        task.setCallback(networkServiceCallback);
-        task.execute(networkRequest);
-    }
-
-    private class InnerTask extends AsyncTask<NetworkRequest, Void, NetworkResponse<T>> {
-
-        private NetworkServiceCallback<T> networkServiceCallback;
-        private JsonDeserializer serializer;
-
-        public InnerTask(JsonDeserializer serializer) {
-            this.serializer = serializer;
-        }
-
-        public void setCallback(NetworkServiceCallback<T> callback) {
-            this.networkServiceCallback = callback;
-        }
-
-        @Override
-        protected NetworkResponse<T> doInBackground(NetworkRequest... networkRequests) {
-            NetworkRequest request = networkRequests[0];
-            InputStream is = null;
-            BufferedReader in = null;
-            int statusCode = 0;
-            try {
-                long startTimeNetworkRequest = System.currentTimeMillis();
-                Log.i(TAG, "Start to call -> " + request.toString());
-                HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(request.toString()).openConnection();
-                urlConnection.setReadTimeout(7 * 1000);
-                urlConnection.setConnectTimeout(7 * 1000);
-                urlConnection.setRequestMethod(request.getMethod());
-                urlConnection.setRequestProperty("Content-Type", "application/json");
-                urlConnection.setDoInput(true);
-
-                if (request.getMethod().equals(NetworkService.POST)) {
-                    urlConnection.setDoOutput(true);
-                    OutputStream os = urlConnection.getOutputStream();
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-                    writer.write(request.getBody());
-                    writer.flush();
-                    writer.close();
-                }
-
-                is = urlConnection.getInputStream();
-                in = new BufferedReader(new InputStreamReader(is));
-                String inputLine;
-                StringBuilder sb = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    sb.append(inputLine);
-                }
-                statusCode = urlConnection.getResponseCode();
-                long endNetworkRequestTime = System.currentTimeMillis();
-                Log.i(TAG, "Network request time in millis: " + (endNetworkRequestTime - startTimeNetworkRequest));
-                long startDeserializeTime = System.currentTimeMillis();
-                T data = (T) serializer.deserialize(sb.toString());
-                long endDeserializationTime = System.currentTimeMillis();
-                Log.i(TAG, "Deserialization time in millis: " + (endDeserializationTime - startDeserializeTime));
-                NetworkResponse<T> response = new NetworkResponse<>(statusCode, data);
-                return response;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return new NetworkResponse<T>(e);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return new NetworkResponse<T>(statusCode, e);
-            } finally {
-                Log.i(TAG, "Network call response -> code: " + statusCode);
-                try {
-                    if (in != null)
-                        in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    if (is != null)
-                        is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+    public void call(final NetworkRequest request, final NetworkServiceCallback<T> networkServiceCallback) {
+        ApplicationThreadPool.execute(new Task<NetworkResponse<T>>() {
+            @Override
+            public NetworkResponse<T> execute() {
+                return runNetworkRequest(request);
+            }
+        }, new TaskCallback<NetworkResponse<T>>() {
+            @Override
+            public void onResult(NetworkResponse<T> response) {
+                if (networkServiceCallback != null) {
+                    if (response != null) {
+                        if (response.getError() == null) {
+                            if (response.getCode() >= 200 && response.getCode() < 300)
+                                networkServiceCallback.onResponse(response.getResponse());
+                            else if (response.getCode() != -1)
+                                networkServiceCallback.onError(new HttpException(response.getCode()));
+                            else
+                                networkServiceCallback.onError(new IllegalStateException());
+                        } else
+                            networkServiceCallback.onError(response.getError());
+                    } else {
+                        networkServiceCallback.onError(new IllegalStateException());
+                    }
                 }
             }
-        }
 
-        @Override
-        protected void onPostExecute(NetworkResponse<T> response) {
-            if (networkServiceCallback != null) {
-                if (response != null) {
-                    if (response.getError() == null) {
-                        if (response.getCode() >= 200 && response.getCode() < 300)
-                            networkServiceCallback.onResponse(response.getResponse());
-                        else if (response.getCode() != -1)
-                            networkServiceCallback.onError(new HttpException(response.getCode()));
-                        else
-                            networkServiceCallback.onError(new IllegalStateException());
-                    } else
-                        networkServiceCallback.onError(response.getError());
-                } else {
-                    networkServiceCallback.onError(new IllegalStateException());
-                }
+            @Override
+            public void onError(Exception e) {
+                networkServiceCallback.onError(e);
+            }
+        });
+    }
+
+    private NetworkResponse<T> runNetworkRequest(NetworkRequest request) {
+        InputStream is = null;
+        BufferedReader in = null;
+        int statusCode = 0;
+        try {
+            long startTimeNetworkRequest = System.currentTimeMillis();
+            Log.i(TAG, "Start to call -> " + request.toString());
+            HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(request.toString()).openConnection();
+            urlConnection.setReadTimeout(7 * 1000);
+            urlConnection.setConnectTimeout(7 * 1000);
+            urlConnection.setRequestMethod(request.getMethod());
+            urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setDoInput(true);
+
+            if (request.getMethod().equals(NetworkService.POST)) {
+                urlConnection.setDoOutput(true);
+                OutputStream os = urlConnection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                writer.write(request.getBody());
+                writer.flush();
+                writer.close();
+            }
+
+            is = urlConnection.getInputStream();
+            in = new BufferedReader(new InputStreamReader(is));
+            String inputLine;
+            StringBuilder sb = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                sb.append(inputLine);
+            }
+            statusCode = urlConnection.getResponseCode();
+            long endNetworkRequestTime = System.currentTimeMillis();
+            Log.i(TAG, "Network request time in millis: " + (endNetworkRequestTime - startTimeNetworkRequest));
+            long startDeserializeTime = System.currentTimeMillis();
+            T data = (T) jsonDeserializer.deserialize(sb.toString());
+            long endDeserializationTime = System.currentTimeMillis();
+            Log.i(TAG, "Deserialization time in millis: " + (endDeserializationTime - startDeserializeTime));
+            NetworkResponse<T> response = new NetworkResponse<>(statusCode, data);
+            return response;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new NetworkResponse<T>(e);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new NetworkResponse<T>(statusCode, e);
+        } finally {
+            Log.i(TAG, "Network call response -> code: " + statusCode);
+            try {
+                if (in != null)
+                    in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (is != null)
+                    is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

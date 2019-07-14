@@ -11,6 +11,10 @@ import android.widget.Toast;
 
 import com.gustlogix.rickandmorty.R;
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
+import com.gustlogix.rickandmorty.repo.CharacterRepository;
+import com.gustlogix.rickandmorty.repo.CharacterRepositoryImpl;
+import com.gustlogix.rickandmorty.repo.local.character.CharacterLocalServiceImpl;
+import com.gustlogix.rickandmorty.repo.local.db.DbHelperImpl;
 import com.gustlogix.rickandmorty.repo.remote.character.CharacterRemoteServiceImpl;
 import com.gustlogix.rickandmorty.repo.remote.character.deserializer.MultipleCharacterDeserializerImpl;
 import com.gustlogix.rickandmorty.repo.remote.character.deserializer.SingleCharacterDeserializerImpl;
@@ -26,7 +30,10 @@ public class CharactersActivity extends Activity implements CharactersView {
     LinearLayout llProgressBar;
     ListView lstCharacters;
 
-    CharactersPresenter presenter = new CharactersPresenterImpl(this, new CharacterRemoteServiceImpl(new NetworkServiceImpl<CharacterResult>(new SingleCharacterDeserializerImpl()), new NetworkServiceImpl<List<CharacterResult>>(new MultipleCharacterDeserializerImpl(new SingleCharacterDeserializerImpl()))));
+    private final CharacterRemoteServiceImpl characterRemoteService = new CharacterRemoteServiceImpl(new NetworkServiceImpl<CharacterResult>(new SingleCharacterDeserializerImpl()), new NetworkServiceImpl<List<CharacterResult>>(new MultipleCharacterDeserializerImpl(new SingleCharacterDeserializerImpl())));
+    private  CharacterLocalServiceImpl characterLocalService;
+    private CharacterRepository characterRepository;
+    CharactersPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +41,10 @@ public class CharactersActivity extends Activity implements CharactersView {
         setContentView(R.layout.activity_characters);
 
         ArrayList<Integer> characterIds = getIntent().getIntegerArrayListExtra(IDS_LIST_ARG);
+
+        characterLocalService = new CharacterLocalServiceImpl(new DbHelperImpl(getApplicationContext()));
+        characterRepository = new CharacterRepositoryImpl(characterRemoteService, characterLocalService);
+        presenter = new CharactersPresenterImpl(this, characterRepository);
 
         llProgressBar = findViewById(R.id.llProgressbar);
         lstCharacters = findViewById(R.id.lstCharacters);

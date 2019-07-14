@@ -2,38 +2,38 @@ package com.gustlogix.rickandmorty.repo.local.downloadcache;
 
 import android.util.Log;
 
-import com.gustlogix.rickandmorty.repo.RepositoryCallback;
+import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 
 import java.io.File;
 import java.util.List;
 
 public class FileCacheManagerImpl implements FileCacheManager {
 
-    FileCacheLocalRepo fileCacheLocalRepo;
+    FileCacheLocalService fileCacheLocalService;
     String cacheDirectoryPath;
     int cacheSizeInMegaBytes;
 
-    public FileCacheManagerImpl(FileCacheLocalRepo fileCacheLocalRepo, String cacheDirectoryPath, int cacheSizeInMegaBytes) {
-        this.fileCacheLocalRepo = fileCacheLocalRepo;
+    public FileCacheManagerImpl(FileCacheLocalService fileCacheLocalService, String cacheDirectoryPath, int cacheSizeInMegaBytes) {
+        this.fileCacheLocalService = fileCacheLocalService;
         this.cacheDirectoryPath = cacheDirectoryPath;
         this.cacheSizeInMegaBytes = cacheSizeInMegaBytes;
     }
 
     public void cache(String url, String fileName) {
         if (new File(fileName).exists()) {
-            fileCacheLocalRepo.insert(new FileCacheEntry(url, fileName, System.currentTimeMillis()));
+            fileCacheLocalService.insert(new FileCacheEntry(url, fileName, System.currentTimeMillis()));
             if (getFolderSizeInBytes(new File(cacheDirectoryPath)) > cacheSizeInMegaBytes * 1_000_000) {
                 removeCacheByPercentageOf(30);
             }
         }
     }
 
-    public void retrieve(String url, final RepositoryCallback<String> callback) {
-        fileCacheLocalRepo.retrieve(url, new RepositoryCallback<FileCacheEntry>() {
+    public void retrieve(String url, final RemoteRepositoryCallback<String> callback) {
+        fileCacheLocalService.retrieve(url, new RemoteRepositoryCallback<FileCacheEntry>() {
             @Override
             public void onSuccess(FileCacheEntry fileCacheEntry) {
                 fileCacheEntry.setLastRetrievedTimeStamp(System.currentTimeMillis());
-                fileCacheLocalRepo.update(fileCacheEntry);
+                fileCacheLocalService.update(fileCacheEntry);
                 callback.onSuccess(fileCacheEntry.getFileName());
             }
 
@@ -46,14 +46,14 @@ public class FileCacheManagerImpl implements FileCacheManager {
 
 
     private void removeCacheByPercentageOf(final int percent) {
-        fileCacheLocalRepo.retrieveAllSortedByLastRetrieved(new RepositoryCallback<List<FileCacheEntry>>() {
+        fileCacheLocalService.retrieveAllSortedByLastRetrieved(new RemoteRepositoryCallback<List<FileCacheEntry>>() {
             @Override
             public void onSuccess(List<FileCacheEntry> fileCacheEntries) {
                 try {
                     int cacheSizeAfterRemove = cacheSizeInMegaBytes * 1_000_000 * ((100 - percent) / 100);
                     while (getFolderSizeInBytes(new File(cacheDirectoryPath)) > cacheSizeAfterRemove) {
                         removeFile(fileCacheEntries.get(fileCacheEntries.size() - 1).getFileName());
-                        fileCacheLocalRepo.remove(fileCacheEntries.get(fileCacheEntries.size() - 1));
+                        fileCacheLocalService.remove(fileCacheEntries.get(fileCacheEntries.size() - 1));
                         fileCacheEntries.remove(fileCacheEntries.size() - 1);
                     }
                 } catch (Exception ex) {

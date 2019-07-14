@@ -2,10 +2,11 @@ package com.gustlogix.rickandmorty.view.episode;
 
 import android.util.Log;
 
+import com.gustlogix.rickandmorty.dto.Response;
 import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
+import com.gustlogix.rickandmorty.repo.EpisodeRepository;
 import com.gustlogix.rickandmorty.repo.RepositoryCallback;
-import com.gustlogix.rickandmorty.repo.remote.episode.EpisodeRemoteService;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -13,13 +14,13 @@ import java.util.List;
 
 public class EpisodesPresenterImpl implements EpisodesPresenter {
 
-    private EpisodeRemoteService episodeRemoteService;
+    private EpisodeRepository episodeRepository;
     private EpisodesView view;
     private boolean isMoreDataAvailable = true;
     private int page = 1;
 
-    EpisodesPresenterImpl(EpisodesView episodesView, EpisodeRemoteService episodeRemoteService) {
-        this.episodeRemoteService = episodeRemoteService;
+    EpisodesPresenterImpl(EpisodesView episodesView, EpisodeRepository episodeRepository) {
+        this.episodeRepository = episodeRepository;
         this.view = episodesView;
     }
 
@@ -36,13 +37,15 @@ public class EpisodesPresenterImpl implements EpisodesPresenter {
 
         view.showProgress();
 
-        episodeRemoteService.fetchAllEpisodes(page, new RepositoryCallback<AllEpisodeResponse>() {
+        episodeRepository.getAllEpisodes(page, new RepositoryCallback<AllEpisodeResponse>() {
+
             @Override
-            public void onSuccess(AllEpisodeResponse data) {
-                isMoreDataAvailable = data.getInfo().getNext() != null && !data.getInfo().getNext().trim().equals("");
+            public void onSuccess(Response<AllEpisodeResponse> response) {
+                AllEpisodeResponse episodes = response.getResult();
+                isMoreDataAvailable = episodes.getInfo().getNext() != null && !episodes.getInfo().getNext().trim().equals("");
                 page++;
                 view.hideProgress();
-                view.addNewEpisodesToView(data.getResults());
+                view.addNewEpisodesToView(episodes.getResults());
             }
 
             @Override
@@ -55,6 +58,7 @@ public class EpisodesPresenterImpl implements EpisodesPresenter {
                     Log.e("R&M", e.toString());
                 }
             }
+
         });
     }
 

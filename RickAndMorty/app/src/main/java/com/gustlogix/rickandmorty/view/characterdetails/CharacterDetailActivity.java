@@ -7,10 +7,10 @@ import android.widget.TextView;
 
 import com.gustlogix.rickandmorty.R;
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
-import com.gustlogix.rickandmorty.repo.RepositoryCallback;
+import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.CacheEntryNotFoundException;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheEntry;
-import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheLocalRepo;
+import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheLocalService;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheManagerImpl;
 import com.gustlogix.rickandmorty.repo.remote.imagedownloader.DownloadHelperImpl;
 import com.gustlogix.rickandmorty.repo.remote.imagedownloader.ImageDownloader;
@@ -45,7 +45,7 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
         tvLocation = findViewById(R.id.tvLocation);
         tvGender = findViewById(R.id.tvGender);
 
-        imageDownloader = new ImageDownloaderImpl(DownloadHelperImpl.getInstance(this.getExternalCacheDir() + "downloads", new FileCacheManagerImpl(new FileCacheLocalRepo() {
+        imageDownloader = new ImageDownloaderImpl(DownloadHelperImpl.getInstance(this.getCacheDir() + "/downloads", new FileCacheManagerImpl(new FileCacheLocalService() {
             @Override
             public void insert(FileCacheEntry fileCacheEntry) {
 
@@ -62,15 +62,15 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
             }
 
             @Override
-            public void retrieve(String url, RepositoryCallback<FileCacheEntry> callback) {
+            public void retrieve(String url, RemoteRepositoryCallback<FileCacheEntry> callback) {
                 callback.onError(new CacheEntryNotFoundException());
             }
 
             @Override
-            public void retrieveAllSortedByLastRetrieved(RepositoryCallback<List<FileCacheEntry>> callback) {
+            public void retrieveAllSortedByLastRetrieved(RemoteRepositoryCallback<List<FileCacheEntry>> callback) {
 //            callback.onError(new CacheEntryNotFoundException());
             }
-        }, this.getExternalCacheDir() + "downloads", 20)));
+        }, this.getCacheDir() + "/downloads", 20)));
 
 
         presenter.onInit(characterDetails);

@@ -2,19 +2,20 @@ package com.gustlogix.rickandmorty.view.characters;
 
 import android.util.Log;
 
+import com.gustlogix.rickandmorty.dto.Response;
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
+import com.gustlogix.rickandmorty.repo.CharacterRepository;
 import com.gustlogix.rickandmorty.repo.RepositoryCallback;
-import com.gustlogix.rickandmorty.repo.remote.character.CharacterRemoteService;
 
 import java.util.List;
 
 public class CharactersPresenterImpl implements CharactersPresenter {
 
-    private CharacterRemoteService characterRemoteService;
+    private CharacterRepository characterRepository;
     private CharactersView view;
 
-    CharactersPresenterImpl(CharactersView charactersView, CharacterRemoteService characterRemoteService) {
-        this.characterRemoteService = characterRemoteService;
+    CharactersPresenterImpl(CharactersView charactersView, CharacterRepository characterRepository) {
+        this.characterRepository = characterRepository;
         this.view = charactersView;
     }
 
@@ -22,12 +23,12 @@ public class CharactersPresenterImpl implements CharactersPresenter {
     public void onInit(List<Integer> characterIds) {
         view.showProgress();
 
-        characterRemoteService.fetchMultipleCharacter(characterIds, new RepositoryCallback<List<CharacterResult>>() {
+        characterRepository.getMultipleCharacters(characterIds, new RepositoryCallback<List<CharacterResult>>() {
             @Override
-            public void onSuccess(List<CharacterResult> data) {
+            public void onSuccess(Response<List<CharacterResult>> response) {
                 view.hideProgress();
 
-                view.showCharacters(data);
+                view.showCharacters(response.getResult());
             }
 
             @Override

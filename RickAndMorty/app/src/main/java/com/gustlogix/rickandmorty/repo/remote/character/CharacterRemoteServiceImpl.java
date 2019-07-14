@@ -1,7 +1,7 @@
 package com.gustlogix.rickandmorty.repo.remote.character;
 
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
-import com.gustlogix.rickandmorty.repo.RepositoryCallback;
+import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkRequest;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkService;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkServiceCallback;
@@ -19,7 +19,7 @@ public class CharacterRemoteServiceImpl implements CharacterRemoteService {
     }
 
     @Override
-    public void fetchSingleCharacter(int id, final RepositoryCallback<CharacterResult> callback) {
+    public void fetchSingleCharacter(int id, final RemoteRepositoryCallback<CharacterResult> callback) {
         NetworkRequest networkRequest = new NetworkRequest.Builder()
                 .setUrl("https://rickandmortyapi.com/api/character/" + id)
                 .setMethod(NetworkService.GET)
@@ -40,7 +40,7 @@ public class CharacterRemoteServiceImpl implements CharacterRemoteService {
     }
 
     @Override
-    public void fetchMultipleCharacter(List<Integer> characterIds, final RepositoryCallback<List<CharacterResult>> callback) {
+    public void fetchMultipleCharacter(List<Integer> characterIds, final RemoteRepositoryCallback<List<CharacterResult>> callback) {
         StringBuilder sb = new StringBuilder();
         sb.append("https://rickandmortyapi.com/api/character/");
         for (int id : characterIds) {
