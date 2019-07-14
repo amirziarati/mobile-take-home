@@ -8,6 +8,7 @@ import com.gustlogix.rickandmorty.repo.local.character.CharacterLocalService;
 import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 import com.gustlogix.rickandmorty.repo.remote.character.CharacterRemoteService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CharacterRepositoryImpl implements CharacterRepository {
@@ -83,7 +84,13 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                     public void onSuccess(List<CharacterResult> data) {
                         Response response = new Response();
                         response.setOnline(false);
-                        response.setResult(data);
+                        if(data.size() == ids.size()) {//if we dont have the complete list of haracters offline dont return any of them
+                            response.setResult(data);
+                        }
+                        else
+                        {
+                            response.setResult(new ArrayList<CharacterResult>());
+                        }
                         callback.onSuccess(response);
                     }
 

@@ -4,6 +4,7 @@ import com.gustlogix.rickandmorty.dto.character.AllCharacterResponse;
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
 import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
+import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheEntry;
 
 import java.util.List;
 
@@ -28,4 +29,12 @@ public interface DbHelper {
     long insertEpisode(EpisodeResult episodeResult);
 
     void insertEpisodes(List<EpisodeResult> episodeResults);
+
+    long insertFileCache(FileCacheEntry fileCacheEntry);
+
+    long removeFileCache(FileCacheEntry fileCacheEntry);
+
+    FileCacheEntry fetchFileCache(String url);
+
+    List<FileCacheEntry> fetchFileCaches();
 }

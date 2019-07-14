@@ -13,6 +13,7 @@ import com.gustlogix.rickandmorty.dto.character.Location;
 import com.gustlogix.rickandmorty.dto.character.Origin;
 import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
+import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DB.CHARACTER.CREATE_TABLE_COMMAND);
         db.execSQL(DB.EPISODE.CREATE_TABLE_COMMAND);
+        db.execSQL(DB.FILECACHE.CREATE_TABLE_COMMAND);
     }
 
     @Override
@@ -237,7 +239,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
             values.put(DB.CHARACTER.C_CREATED, characterResult.getCreated());
             long id = db.insertWithOnConflict(DB.CHARACTER.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
             if (id == -1) {
-                id = db.update(DB.CHARACTER.TABLE_NAME, values, DB.CHARACTER.C_ID, new String[]{characterResult.getId().toString()});
+                id = db.update(DB.CHARACTER.TABLE_NAME, values, getCharacterSelection(), new String[]{characterResult.getId().toString()});
             }
             return id;
         } catch (Exception e) {
@@ -269,7 +271,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
             values.put(DB.EPISODE.C_CREATED, episodeResult.getCreated());
             long id = db.insertWithOnConflict(DB.EPISODE.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
             if (id == -1) {
-                id = db.update(DB.EPISODE.TABLE_NAME, values, DB.EPISODE.C_ID, new String[]{episodeResult.getId().toString()});
+                id = db.update(DB.EPISODE.TABLE_NAME, values, getEpisodeSelection(), new String[]{episodeResult.getId().toString()});
             }
             return id;
         } catch (Exception e) {
@@ -285,6 +287,92 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
         for (EpisodeResult episodeResult : episodeResults) {
             insertEpisode(episodeResult);
         }
+    }
+
+    @Override
+    public long insertFileCache(FileCacheEntry fileCacheEntry) {
+        SQLiteDatabase db = getWritableDatabase();
+        try {
+            ContentValues values = new ContentValues();
+            values.put(DB.FILECACHE.C_URL, fileCacheEntry.getUrl());
+            values.put(DB.FILECACHE.C_FILE_NAME, fileCacheEntry.getFileName());
+            values.put(DB.FILECACHE.C_LAST_RETRIEVED, fileCacheEntry.getLastRetrievedTimeStamp());
+            long id = db.insertWithOnConflict(DB.FILECACHE.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+            if (id == -1) {
+                id = db.update(DB.FILECACHE.TABLE_NAME, values, getFileCacheSelection(), new String[]{fileCacheEntry.getUrl()});
+            }
+            return id;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        } finally {
+            db.close();
+        }
+    }
+
+    @Override
+    public long removeFileCache(FileCacheEntry fileCacheEntry) {
+        SQLiteDatabase db = getWritableDatabase();
+        try {
+            return db.delete(DB.FILECACHE.TABLE_NAME, DB.FILECACHE.C_URL + "=" + fileCacheEntry.getUrl(), null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        } finally {
+            db.close();
+        }
+    }
+
+    @Override
+    public FileCacheEntry fetchFileCache(String url) {
+        FileCacheEntry fileCacheEntry = null;
+        SQLiteDatabase db = getReadableDatabase();
+        try {
+            String[] selectionArgs = {url};
+            Cursor cursor = db.query(
+                    DB.FILECACHE.TABLE_NAME,
+                    getFileCacheProjection(),
+                    getFileCacheSelection(),
+                    selectionArgs,
+                    null,
+                    null,
+                    getFileCacheSortOrder()
+            );
+            if (cursor.moveToFirst()) {
+                fileCacheEntry = extractFileCache(cursor);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+        return fileCacheEntry;
+    }
+
+    @Override
+    public List<FileCacheEntry> fetchFileCaches() {
+        SQLiteDatabase db = getReadableDatabase();
+        try {
+            List<FileCacheEntry> fileCaches = new ArrayList<>();
+            Cursor cursor = db.query(
+                    DB.FILECACHE.TABLE_NAME,
+                    getFileCacheProjection(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    getFileCacheSortOrder()
+            );
+            while (cursor.moveToNext()) {
+                fileCaches.add(extractFileCache(cursor));
+            }
+            return fileCaches;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+        return null;
     }
 
     private String getCommaSeparatedEpisodes(CharacterResult characterResult) {
@@ -334,6 +422,14 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
         episodeResult.setUrl(cursor.getString(cursor.getColumnIndex(DB.EPISODE.C_URL)));
         episodeResult.setCreated(cursor.getString(cursor.getColumnIndex(DB.EPISODE.C_CREATED)));
         return episodeResult;
+    }
+
+    private FileCacheEntry extractFileCache(Cursor cursor) {
+        return new FileCacheEntry(
+                cursor.getString(cursor.getColumnIndex(DB.FILECACHE.C_URL)),
+                cursor.getString(cursor.getColumnIndex(DB.FILECACHE.C_FILE_NAME)),
+                cursor.getLong(cursor.getColumnIndex(DB.FILECACHE.C_LAST_RETRIEVED))
+        );
     }
 
     private Origin extractOrigin(Cursor cursor) {
@@ -399,6 +495,15 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
         return projection;
     }
 
+    private String[] getFileCacheProjection() {
+        String[] projection = {
+                DB.FILECACHE.C_URL,
+                DB.FILECACHE.C_FILE_NAME,
+                DB.FILECACHE.C_LAST_RETRIEVED,
+        };
+        return projection;
+    }
+
     private String getCharacterSelection() {
         return DB.CHARACTER.C_ID + " = ?";
     }
@@ -407,12 +512,20 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
         return DB.EPISODE.C_ID + " = ?";
     }
 
+    private String getFileCacheSelection() {
+        return DB.FILECACHE.C_URL + " = ?";
+    }
+
     private String getCharacterSortOrder() {
-        return DB.CHARACTER.C_ID + " DESC";
+        return DB.CHARACTER.C_ID + " ASC";
     }
 
     private String getEpisodeSortOrder() {
-        return DB.CHARACTER.C_ID + " DESC";
+        return DB.CHARACTER.C_ID + " ASC";
+    }
+
+    private String getFileCacheSortOrder() {
+        return DB.FILECACHE.C_LAST_RETRIEVED + " DESC";
     }
 
     private String removeLastChar(String str) {
@@ -493,6 +606,17 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
             static final String C_COMMA_SEPARATED_CHARACTERS = "characters";
             static final String C_URL = "url";
             static final String C_CREATED = "created";
+        }
+
+        static class FILECACHE {
+            static final String CREATE_TABLE_COMMAND = "CREATE TABLE IF NOT EXISTS " + FILECACHE.TABLE_NAME +
+                    "(" + FILECACHE.C_URL + " TEXT PRIMARY KEY, " +
+                    FILECACHE.C_FILE_NAME + " TEXT NOT NULL, " +
+                    FILECACHE.C_LAST_RETRIEVED + " INTEGER);";
+            static final String TABLE_NAME = "FILECACHE";
+            static final String C_URL = "url";
+            static final String C_FILE_NAME = "filename";
+            static final String C_LAST_RETRIEVED = "airDate";
         }
     }
 }

@@ -21,7 +21,7 @@ public class FileCacheManagerImpl implements FileCacheManager {
 
     public void cache(String url, String fileName) {
         if (new File(fileName).exists()) {
-            fileCacheLocalService.insert(new FileCacheEntry(url, fileName, System.currentTimeMillis()));
+            fileCacheLocalService.insertOrUpdate(new FileCacheEntry(url, fileName, System.currentTimeMillis()));
             if (getFolderSizeInBytes(new File(cacheDirectoryPath)) > cacheSizeInMegaBytes * 1_000_000) {
                 removeCacheByPercentageOf(30);
             }
@@ -32,8 +32,12 @@ public class FileCacheManagerImpl implements FileCacheManager {
         fileCacheLocalService.retrieve(url, new RemoteRepositoryCallback<FileCacheEntry>() {
             @Override
             public void onSuccess(FileCacheEntry fileCacheEntry) {
+                if (fileCacheEntry == null) {
+                    onError(new CacheEntryNotFoundException());
+                    return;
+                }
                 fileCacheEntry.setLastRetrievedTimeStamp(System.currentTimeMillis());
-                fileCacheLocalService.update(fileCacheEntry);
+                fileCacheLocalService.insertOrUpdate(fileCacheEntry);
                 callback.onSuccess(fileCacheEntry.getFileName());
             }
 

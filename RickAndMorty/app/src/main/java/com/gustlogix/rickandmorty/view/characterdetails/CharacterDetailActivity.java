@@ -7,16 +7,12 @@ import android.widget.TextView;
 
 import com.gustlogix.rickandmorty.R;
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
-import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
-import com.gustlogix.rickandmorty.repo.local.downloadcache.CacheEntryNotFoundException;
-import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheEntry;
-import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheLocalService;
+import com.gustlogix.rickandmorty.repo.local.db.DbHelperImpl;
+import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheLocalServiceImpl;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheManagerImpl;
 import com.gustlogix.rickandmorty.repo.remote.imagedownloader.DownloadHelperImpl;
 import com.gustlogix.rickandmorty.repo.remote.imagedownloader.ImageDownloader;
 import com.gustlogix.rickandmorty.repo.remote.imagedownloader.ImageDownloaderImpl;
-
-import java.util.List;
 
 public class CharacterDetailActivity extends Activity implements CharacterDetailsView {
 
@@ -36,7 +32,6 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_character_details);
 
-        CharacterResult characterDetails = (CharacterResult) getIntent().getSerializableExtra(CHARACTER_DETAILS_ARG);
 
         imgCharacter = findViewById(R.id.imgCharacter);
         tvName = findViewById(R.id.tvName);
@@ -45,34 +40,13 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
         tvLocation = findViewById(R.id.tvLocation);
         tvGender = findViewById(R.id.tvGender);
 
-        imageDownloader = new ImageDownloaderImpl(DownloadHelperImpl.getInstance(this.getCacheDir() + "/downloads", new FileCacheManagerImpl(new FileCacheLocalService() {
-            @Override
-            public void insert(FileCacheEntry fileCacheEntry) {
+        imageDownloader = new ImageDownloaderImpl(DownloadHelperImpl.getInstance(this.getCacheDir() + "/downloads", new FileCacheManagerImpl(new FileCacheLocalServiceImpl(new DbHelperImpl(getApplicationContext())), this.getCacheDir() + "/downloads", 20)));
+    }
 
-            }
-
-            @Override
-            public void update(FileCacheEntry fileCacheEntry) {
-
-            }
-
-            @Override
-            public void remove(FileCacheEntry fileCacheEntry) {
-
-            }
-
-            @Override
-            public void retrieve(String url, RemoteRepositoryCallback<FileCacheEntry> callback) {
-                callback.onError(new CacheEntryNotFoundException());
-            }
-
-            @Override
-            public void retrieveAllSortedByLastRetrieved(RemoteRepositoryCallback<List<FileCacheEntry>> callback) {
-//            callback.onError(new CacheEntryNotFoundException());
-            }
-        }, this.getCacheDir() + "/downloads", 20)));
-
-
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        CharacterResult characterDetails = (CharacterResult) getIntent().getSerializableExtra(CHARACTER_DETAILS_ARG);
         presenter.onInit(characterDetails);
     }
 
