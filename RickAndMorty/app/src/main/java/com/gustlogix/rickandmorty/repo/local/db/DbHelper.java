@@ -10,6 +10,12 @@ import java.util.List;
 
 public interface DbHelper {
 
+    void deleteAllCharacters();
+
+    void deleteAllEpisodes();
+
+    void deleteAllCacheEntries();
+
     CharacterResult fetchSingleCharacter(int id);
 
     List<CharacterResult> fetchMultipleCharacter(List<Integer> characterIds);

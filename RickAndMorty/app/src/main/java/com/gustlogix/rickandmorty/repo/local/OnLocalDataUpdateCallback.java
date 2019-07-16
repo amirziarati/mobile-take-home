@@ -1,6 +1,6 @@
 package com.gustlogix.rickandmorty.repo.local;
 
-public interface OnLocalDataUpdateListener {
+public interface OnLocalDataUpdateCallback {
 
     void onUpdateDone();
 

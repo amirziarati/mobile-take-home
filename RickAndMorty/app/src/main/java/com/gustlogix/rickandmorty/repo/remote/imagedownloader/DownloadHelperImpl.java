@@ -1,10 +1,8 @@
 package com.gustlogix.rickandmorty.repo.remote.imagedownloader;
 
-import android.content.Context;
-
-import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.CacheEntryNotFoundException;
 import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheManager;
+import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 import com.gustlogix.rickandmorty.thread.ApplicationThreadPool;
 import com.gustlogix.rickandmorty.thread.Task;
 import com.gustlogix.rickandmorty.thread.TaskCallback;
@@ -36,7 +34,7 @@ public class DownloadHelperImpl implements DownloadHelper {
     }
 
     @Override
-    public void download(Context context, final String urlString, final DownloadManagerCallback callback) {
+    public void download(final String urlString, final DownloadManagerCallback callback) {
 
         if (mapFileNameDownloadingFileInfo.containsKey(urlString)) {
             //file is already downloading

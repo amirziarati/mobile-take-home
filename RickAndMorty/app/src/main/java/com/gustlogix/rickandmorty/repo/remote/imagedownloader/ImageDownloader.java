@@ -1,11 +1,10 @@
 package com.gustlogix.rickandmorty.repo.remote.imagedownloader;
 
-import android.content.Context;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 public interface ImageDownloader {
-    void loadImage(Context context, String url, ImageView imageView, ProgressBar progressBar);
+    void loadImage(String url, ImageView imageView, ProgressBar progressBar);
 
-    void loadImage(Context context, String url, ImageView imageView);
+    void loadImage(String url, ImageView imageView);
 }

@@ -10,16 +10,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gustlogix.rickandmorty.R;
-import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
+import com.gustlogix.rickandmorty.SimpleServiceLocator;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
-import com.gustlogix.rickandmorty.repo.EpisodeRepositoryImpl;
-import com.gustlogix.rickandmorty.repo.local.db.DbHelperImpl;
-import com.gustlogix.rickandmorty.repo.local.episode.EpisodeLocalServiceImpl;
-import com.gustlogix.rickandmorty.repo.remote.episode.EpisodeRemoteServiceImpl;
-import com.gustlogix.rickandmorty.repo.remote.episode.deserializer.AllEpisodeDeserializerImpl;
-import com.gustlogix.rickandmorty.repo.remote.episode.deserializer.MultipleEpisodeDeserializerImpl;
-import com.gustlogix.rickandmorty.repo.remote.episode.deserializer.SingleEpisodeDeserializerImpl;
-import com.gustlogix.rickandmorty.repo.remote.network.NetworkServiceImpl;
 import com.gustlogix.rickandmorty.view.EndlessScrollListener;
 import com.gustlogix.rickandmorty.view.characters.CharactersActivity;
 
@@ -31,15 +23,6 @@ public class EpisodesActivity extends Activity implements EpisodesView {
     LinearLayout llProgressBar;
     ListView lstEpisodes;
 
-    private final SingleEpisodeDeserializerImpl singleEpisodeDeserializer = new SingleEpisodeDeserializerImpl();
-    private final NetworkServiceImpl<EpisodeResult> singleNetworkService = new NetworkServiceImpl<>(singleEpisodeDeserializer);
-    private final MultipleEpisodeDeserializerImpl multipleEpisodeDeserializer = new MultipleEpisodeDeserializerImpl(new SingleEpisodeDeserializerImpl());
-    private final AllEpisodeDeserializerImpl allEpisodeDeserializer = new AllEpisodeDeserializerImpl(new MultipleEpisodeDeserializerImpl(new SingleEpisodeDeserializerImpl()));
-    private final NetworkServiceImpl<AllEpisodeResponse> allNetworkService = new NetworkServiceImpl<>(allEpisodeDeserializer);
-    private final NetworkServiceImpl<List<EpisodeResult>> multipleNetworkService = new NetworkServiceImpl<>(multipleEpisodeDeserializer);
-    private final EpisodeRemoteServiceImpl episodeRemoteService = new EpisodeRemoteServiceImpl(singleNetworkService, multipleNetworkService, allNetworkService);
-    private EpisodeLocalServiceImpl episodeLocalService;
-    private EpisodeRepositoryImpl episodeRepository;
     private EpisodesPresenter presenter;
 
     @Override
@@ -50,9 +33,7 @@ public class EpisodesActivity extends Activity implements EpisodesView {
         llProgressBar = findViewById(R.id.llProgressbar);
         lstEpisodes = findViewById(R.id.lstEpisodes);
 
-        episodeLocalService = new EpisodeLocalServiceImpl(new DbHelperImpl(getApplicationContext()));
-        episodeRepository = new EpisodeRepositoryImpl(episodeRemoteService, episodeLocalService);
-        presenter = new EpisodesPresenterImpl(this, episodeRepository);
+        presenter = SimpleServiceLocator.getInstance().getEpisodePresenter(this);
 
         lstEpisodes.setOnScrollListener(new EndlessScrollListener(5, 0) {
             @Override

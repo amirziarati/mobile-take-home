@@ -14,7 +14,7 @@ public class CharactersPresenterImpl implements CharactersPresenter {
     private CharacterRepository characterRepository;
     private CharactersView view;
 
-    CharactersPresenterImpl(CharactersView charactersView, CharacterRepository characterRepository) {
+    public CharactersPresenterImpl(CharactersView charactersView, CharacterRepository characterRepository) {
         this.characterRepository = characterRepository;
         this.view = charactersView;
     }

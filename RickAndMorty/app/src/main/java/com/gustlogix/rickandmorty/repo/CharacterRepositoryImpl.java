@@ -3,7 +3,7 @@ package com.gustlogix.rickandmorty.repo;
 import com.gustlogix.rickandmorty.dto.Response;
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
 import com.gustlogix.rickandmorty.repo.local.LocalRepositoryCallback;
-import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateListener;
+import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateCallback;
 import com.gustlogix.rickandmorty.repo.local.character.CharacterLocalService;
 import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 import com.gustlogix.rickandmorty.repo.remote.character.CharacterRemoteService;
@@ -58,7 +58,7 @@ public class CharacterRepositoryImpl implements CharacterRepository {
         characterRemoteService.fetchMultipleCharacter(ids, new RemoteRepositoryCallback<List<CharacterResult>>() {
             @Override
             public void onSuccess(final List<CharacterResult> data) {
-                characterLocalService.updateCharacters(data, new OnLocalDataUpdateListener() {
+                characterLocalService.updateCharacters(data, new OnLocalDataUpdateCallback() {
                     @Override
                     public void onUpdateDone() {
                         Response response = new Response();

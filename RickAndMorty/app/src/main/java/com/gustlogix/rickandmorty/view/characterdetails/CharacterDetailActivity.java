@@ -6,13 +6,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gustlogix.rickandmorty.R;
+import com.gustlogix.rickandmorty.SimpleServiceLocator;
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
-import com.gustlogix.rickandmorty.repo.local.db.DbHelperImpl;
-import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheLocalServiceImpl;
-import com.gustlogix.rickandmorty.repo.local.downloadcache.FileCacheManagerImpl;
-import com.gustlogix.rickandmorty.repo.remote.imagedownloader.DownloadHelperImpl;
 import com.gustlogix.rickandmorty.repo.remote.imagedownloader.ImageDownloader;
-import com.gustlogix.rickandmorty.repo.remote.imagedownloader.ImageDownloaderImpl;
 
 public class CharacterDetailActivity extends Activity implements CharacterDetailsView {
 
@@ -25,7 +21,7 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
     TextView tvLocation;
 
     ImageDownloader imageDownloader;
-    CharacterDetailsPresenter presenter = new CharacterDetailsPresenterImpl(this);
+    CharacterDetailsPresenter presenter = SimpleServiceLocator.getInstance().getCharacterDetailsPresenter(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +36,7 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
         tvLocation = findViewById(R.id.tvLocation);
         tvGender = findViewById(R.id.tvGender);
 
-        imageDownloader = new ImageDownloaderImpl(DownloadHelperImpl.getInstance(this.getCacheDir() + "/downloads", new FileCacheManagerImpl(new FileCacheLocalServiceImpl(new DbHelperImpl(getApplicationContext())), this.getCacheDir() + "/downloads", 20)));
+        imageDownloader = SimpleServiceLocator.getInstance().getImageDownloader();
     }
 
     @Override
@@ -57,7 +53,7 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
         tvGender.setText(characterDetails.getGender());
         tvSpecies.setText(characterDetails.getSpecies());
         tvStatus.setText(characterDetails.getStatus());
-        imageDownloader.loadImage(CharacterDetailActivity.this, characterDetails.getImage(), imgCharacter);
+        imageDownloader.loadImage(characterDetails.getImage(), imgCharacter);
     }
 
     @Override

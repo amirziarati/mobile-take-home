@@ -3,7 +3,7 @@ package com.gustlogix.rickandmorty.repo.local.episode;
 import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
 import com.gustlogix.rickandmorty.repo.local.LocalRepositoryCallback;
-import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateListener;
+import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateCallback;
 import com.gustlogix.rickandmorty.repo.local.db.DbHelper;
 import com.gustlogix.rickandmorty.thread.ApplicationThreadPool;
 import com.gustlogix.rickandmorty.thread.Task;
@@ -102,7 +102,7 @@ public class EpisodeLocalServiceImpl implements EpisodeLocalService {
     }
 
     @Override
-    public void updateEpisodes(final List<EpisodeResult> episodes, final OnLocalDataUpdateListener onLocalDataUpdateListener) {
+    public void updateEpisodes(final List<EpisodeResult> episodes, final OnLocalDataUpdateCallback onLocalDataUpdateCallback) {
         ApplicationThreadPool.execute(new Task<Void>() {
             @Override
             public Void execute() {
@@ -112,12 +112,12 @@ public class EpisodeLocalServiceImpl implements EpisodeLocalService {
         }, new TaskCallback<Void>() {
             @Override
             public void onResult(Void response) {
-                onLocalDataUpdateListener.onUpdateDone();
+                onLocalDataUpdateCallback.onUpdateDone();
             }
 
             @Override
             public void onError(Exception e) {
-                onLocalDataUpdateListener.onError(e);
+                onLocalDataUpdateCallback.onError(e);
             }
         });
     }

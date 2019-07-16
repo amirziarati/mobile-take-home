@@ -4,7 +4,7 @@ import com.gustlogix.rickandmorty.dto.Response;
 import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
 import com.gustlogix.rickandmorty.repo.local.LocalRepositoryCallback;
-import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateListener;
+import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateCallback;
 import com.gustlogix.rickandmorty.repo.local.episode.EpisodeLocalService;
 import com.gustlogix.rickandmorty.repo.remote.RemoteRepositoryCallback;
 import com.gustlogix.rickandmorty.repo.remote.episode.EpisodeRemoteService;
@@ -58,7 +58,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
         remoteService.fetchMultipleEpisodes(ids, new RemoteRepositoryCallback<List<EpisodeResult>>() {
             @Override
             public void onSuccess(final List<EpisodeResult> data) {
-                localService.updateEpisodes(data, new OnLocalDataUpdateListener() {
+                localService.updateEpisodes(data, new OnLocalDataUpdateCallback() {
                     @Override
                     public void onUpdateDone() {
                         Response response = new Response();
@@ -103,7 +103,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
         remoteService.fetchAllEpisodes(page, new RemoteRepositoryCallback<AllEpisodeResponse>() {
             @Override
             public void onSuccess(final AllEpisodeResponse data) {
-                localService.updateEpisodes(data.getResults(), new OnLocalDataUpdateListener() {
+                localService.updateEpisodes(data.getResults(), new OnLocalDataUpdateCallback() {
                     @Override
                     public void onUpdateDone() {
                         Response response = new Response();

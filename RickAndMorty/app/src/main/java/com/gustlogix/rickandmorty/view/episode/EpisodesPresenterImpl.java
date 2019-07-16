@@ -19,7 +19,7 @@ public class EpisodesPresenterImpl implements EpisodesPresenter {
     private boolean isMoreDataAvailable = true;
     private int page = 1;
 
-    EpisodesPresenterImpl(EpisodesView episodesView, EpisodeRepository episodeRepository) {
+    public EpisodesPresenterImpl(EpisodesView episodesView, EpisodeRepository episodeRepository) {
         this.episodeRepository = episodeRepository;
         this.view = episodesView;
     }

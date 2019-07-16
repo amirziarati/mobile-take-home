@@ -10,15 +10,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gustlogix.rickandmorty.R;
+import com.gustlogix.rickandmorty.SimpleServiceLocator;
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
-import com.gustlogix.rickandmorty.repo.CharacterRepository;
-import com.gustlogix.rickandmorty.repo.CharacterRepositoryImpl;
-import com.gustlogix.rickandmorty.repo.local.character.CharacterLocalServiceImpl;
-import com.gustlogix.rickandmorty.repo.local.db.DbHelperImpl;
-import com.gustlogix.rickandmorty.repo.remote.character.CharacterRemoteServiceImpl;
-import com.gustlogix.rickandmorty.repo.remote.character.deserializer.MultipleCharacterDeserializerImpl;
-import com.gustlogix.rickandmorty.repo.remote.character.deserializer.SingleCharacterDeserializerImpl;
-import com.gustlogix.rickandmorty.repo.remote.network.NetworkServiceImpl;
 import com.gustlogix.rickandmorty.view.characterdetails.CharacterDetailActivity;
 
 import java.util.ArrayList;
@@ -30,9 +23,6 @@ public class CharactersActivity extends Activity implements CharactersView {
     LinearLayout llProgressBar;
     ListView lstCharacters;
 
-    private final CharacterRemoteServiceImpl characterRemoteService = new CharacterRemoteServiceImpl(new NetworkServiceImpl<CharacterResult>(new SingleCharacterDeserializerImpl()), new NetworkServiceImpl<List<CharacterResult>>(new MultipleCharacterDeserializerImpl(new SingleCharacterDeserializerImpl())));
-    private  CharacterLocalServiceImpl characterLocalService;
-    private CharacterRepository characterRepository;
     CharactersPresenter presenter;
 
     @Override
@@ -42,9 +32,7 @@ public class CharactersActivity extends Activity implements CharactersView {
 
         ArrayList<Integer> characterIds = getIntent().getIntegerArrayListExtra(IDS_LIST_ARG);
 
-        characterLocalService = new CharacterLocalServiceImpl(new DbHelperImpl(getApplicationContext()));
-        characterRepository = new CharacterRepositoryImpl(characterRemoteService, characterLocalService);
-        presenter = new CharactersPresenterImpl(this, characterRepository);
+        presenter = SimpleServiceLocator.getInstance().getCharacterPresenter(this);
 
         llProgressBar = findViewById(R.id.llProgressbar);
         lstCharacters = findViewById(R.id.lstCharacters);

@@ -34,6 +34,42 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
+    public void deleteAllCharacters() {
+        SQLiteDatabase db = getWritableDatabase();
+        try {
+            db.delete(DB.CHARACTER.TABLE_NAME, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    @Override
+    public void deleteAllEpisodes() {
+        SQLiteDatabase db = getWritableDatabase();
+        try {
+            db.delete(DB.EPISODE.TABLE_NAME, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    @Override
+    public void deleteAllCacheEntries() {
+        SQLiteDatabase db = getWritableDatabase();
+        try {
+            db.delete(DB.FILECACHE.TABLE_NAME, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    @Override
     public CharacterResult fetchSingleCharacter(int id) {
         CharacterResult characterResult = null;
         SQLiteDatabase db = getReadableDatabase();
@@ -161,13 +197,18 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
         try {
             if (characterIds.size() > 0) {
                 String[] selectionArgs = new String[characterIds.size()];
+                StringBuilder selectionPlaceHolders = new StringBuilder();
+                selectionPlaceHolders.append("(");
                 for (int i = 0; i < characterIds.size(); i++) {
                     selectionArgs[i] = characterIds.get(i).toString();
+                    selectionPlaceHolders.append("?,");
                 }
+                selectionPlaceHolders.replace(selectionPlaceHolders.length() - 1, selectionPlaceHolders.length(), ")");
+
                 Cursor cursor = db.query(
                         DB.EPISODE.TABLE_NAME,
                         getEpisodeProjection(),
-                        getEpisodeSelection(),
+                        DB.EPISODE.C_ID + " IN " + selectionPlaceHolders.toString(),
                         selectionArgs,
                         null,
                         null,
@@ -229,11 +270,17 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
             values.put(DB.CHARACTER.C_SPECIES, characterResult.getSpecies());
             values.put(DB.CHARACTER.C_TYPE, characterResult.getType());
             values.put(DB.CHARACTER.C_GENDER, characterResult.getGender());
-            values.put(DB.CHARACTER.C_ORIGIN_NAME, characterResult.getOrigin().getName());
-            values.put(DB.CHARACTER.C_ORIGIN_URL, characterResult.getOrigin().getUrl());
-            values.put(DB.CHARACTER.C_LOCATION_NAME, characterResult.getLocation().getName());
-            values.put(DB.CHARACTER.C_LOCATION_URL, characterResult.getLocation().getUrl());
-            values.put(DB.CHARACTER.C_COMMA_SEPARATED_EPISODES, getCommaSeparatedEpisodes(characterResult));
+            if (characterResult.getOrigin() != null) {
+                values.put(DB.CHARACTER.C_ORIGIN_NAME, characterResult.getOrigin().getName());
+                values.put(DB.CHARACTER.C_ORIGIN_URL, characterResult.getOrigin().getUrl());
+            }
+            if (characterResult.getLocation() != null) {
+                values.put(DB.CHARACTER.C_LOCATION_NAME, characterResult.getLocation().getName());
+                values.put(DB.CHARACTER.C_LOCATION_URL, characterResult.getLocation().getUrl());
+            }
+            if (characterResult.getEpisode() != null) {
+                values.put(DB.CHARACTER.C_COMMA_SEPARATED_EPISODES, getCommaSeparatedEpisodes(characterResult));
+            }
             values.put(DB.CHARACTER.C_URL, characterResult.getUrl());
             values.put(DB.CHARACTER.C_IMAGE, characterResult.getImage());
             values.put(DB.CHARACTER.C_CREATED, characterResult.getCreated());
@@ -314,7 +361,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     public long removeFileCache(FileCacheEntry fileCacheEntry) {
         SQLiteDatabase db = getWritableDatabase();
         try {
-            return db.delete(DB.FILECACHE.TABLE_NAME, DB.FILECACHE.C_URL + "=" + fileCacheEntry.getUrl(), null);
+            return db.delete(DB.FILECACHE.TABLE_NAME, DB.FILECACHE.C_URL + " = ?", new String[]{fileCacheEntry.getUrl()});
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -386,13 +433,14 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     private String getCommaSeparatedCharacters(EpisodeResult episodeResult) {
+        if (episodeResult.getCharacters() == null)
+            return null;
         StringBuilder sb = new StringBuilder();
         for (String chr : episodeResult.getCharacters()) {
             sb.append(chr);
             sb.append(",");
         }
-        String characters = removeLastChar(sb.toString());
-        return characters;
+        return removeLastChar(sb.toString());
     }
 
     private CharacterResult extractCharacterResult(Cursor cursor) {
@@ -433,22 +481,37 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     private Origin extractOrigin(Cursor cursor) {
+        String name = cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_ORIGIN_NAME));
+        String url = cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_ORIGIN_URL));
+        if (name == null && url == null)
+            return null;
         Origin origin = new Origin();
-        origin.setName(cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_ORIGIN_NAME)));
-        origin.setUrl(cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_ORIGIN_URL)));
+        origin.setUrl(url);
+        origin.setName(name);
         return origin;
     }
 
     private Location extractLocation(Cursor cursor) {
+        String url = cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_LOCATION_URL));
+        String name = cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_LOCATION_NAME));
+        if (name == null && url == null) {
+            return null;
+        }
         Location location = new Location();
-        location.setName(cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_LOCATION_NAME)));
-        location.setUrl(cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_LOCATION_URL)));
+        location.setName(name);
+        location.setUrl(url);
         return location;
     }
 
     private List<String> extractEpisodes(Cursor cursor) {
+        String commaSepratedEpisodes = cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_COMMA_SEPARATED_EPISODES));
+        if (commaSepratedEpisodes == null)
+            return null;
+        if (commaSepratedEpisodes.isEmpty())
+            return new ArrayList<>();
+
         List<String> episodes = new ArrayList<>();
-        String[] commaSeparatedEpisodes = cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_IMAGE)).split(",");
+        String[] commaSeparatedEpisodes = commaSepratedEpisodes.split(",");
         for (String episode : commaSeparatedEpisodes) {
             episodes.add(episode);
         }
@@ -456,8 +519,13 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     private List<String> extractCharacters(Cursor cursor) {
+        String commaSeparatedCharactersString = cursor.getString(cursor.getColumnIndex(DB.EPISODE.C_COMMA_SEPARATED_CHARACTERS));
+        if (commaSeparatedCharactersString == null)
+            return null;
+        if (commaSeparatedCharactersString.isEmpty())
+            return new ArrayList<String>();
         List<String> characters = new ArrayList<>();
-        String[] commaSeparatedCharacters = cursor.getString(cursor.getColumnIndex(DB.EPISODE.C_COMMA_SEPARATED_CHARACTERS)).split(",");
+        String[] commaSeparatedCharacters = commaSeparatedCharactersString.split(",");
         characters.addAll(Arrays.asList(commaSeparatedCharacters));
         return characters;
     }

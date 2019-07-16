@@ -2,7 +2,7 @@ package com.gustlogix.rickandmorty.repo.local.character;
 
 import com.gustlogix.rickandmorty.dto.character.CharacterResult;
 import com.gustlogix.rickandmorty.repo.local.LocalRepositoryCallback;
-import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateListener;
+import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateCallback;
 import com.gustlogix.rickandmorty.repo.local.db.DbHelper;
 import com.gustlogix.rickandmorty.thread.ApplicationThreadPool;
 import com.gustlogix.rickandmorty.thread.Task;
@@ -81,7 +81,7 @@ public class CharacterLocalServiceImpl implements CharacterLocalService {
     }
 
     @Override
-    public void updateCharacters(final List<CharacterResult> characterResults, final OnLocalDataUpdateListener onLocalDataUpdateListener) {
+    public void updateCharacters(final List<CharacterResult> characterResults, final OnLocalDataUpdateCallback onLocalDataUpdateCallback) {
         ApplicationThreadPool.execute(new Task<Void>() {
 
             @Override
@@ -92,12 +92,12 @@ public class CharacterLocalServiceImpl implements CharacterLocalService {
         }, new TaskCallback<Void>() {
             @Override
             public void onResult(Void response) {
-                onLocalDataUpdateListener.onUpdateDone();
+                onLocalDataUpdateCallback.onUpdateDone();
             }
 
             @Override
             public void onError(Exception e) {
-                onLocalDataUpdateListener.onError(e);
+                onLocalDataUpdateCallback.onError(e);
             }
         });
     }

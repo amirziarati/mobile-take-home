@@ -3,7 +3,7 @@ package com.gustlogix.rickandmorty.repo.local.episode;
 import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
 import com.gustlogix.rickandmorty.repo.local.LocalRepositoryCallback;
-import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateListener;
+import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateCallback;
 
 import java.util.List;
 
@@ -17,5 +17,5 @@ public interface EpisodeLocalService {
 
     void updateEpisode(EpisodeResult data);
 
-    void updateEpisodes(List<EpisodeResult> data, OnLocalDataUpdateListener onLocalDataUpdateListener);
+    void updateEpisodes(List<EpisodeResult> data, OnLocalDataUpdateCallback onLocalDataUpdateCallback);
 }

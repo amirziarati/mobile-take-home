@@ -1,6 +1,5 @@
 package com.gustlogix.rickandmorty.repo.remote.imagedownloader;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -17,12 +16,12 @@ public class ImageDownloaderImpl implements ImageDownloader {
     }
 
     @Override
-    public void loadImage(Context context, final String url, final ImageView imageView, final ProgressBar progressBar) {
+    public void loadImage(final String url, final ImageView imageView, final ProgressBar progressBar) {
         if (url.trim().isEmpty()) {
             showResultImageInView(imageView, progressBar, null);
         }
 
-        downloadHelper.download(context, url, new DownloadManagerCallback() {
+        downloadHelper.download(url, new DownloadManagerCallback() {
             @Override
             public void onDone(String fileName) {
                 showFileInView(fileName, imageView, progressBar);
@@ -36,8 +35,8 @@ public class ImageDownloaderImpl implements ImageDownloader {
     }
 
     @Override
-    public void loadImage(Context context, String url, ImageView imageView) {
-        loadImage(context, url, imageView, null);
+    public void loadImage(String url, ImageView imageView) {
+        loadImage(url, imageView, null);
     }
 
     private void showFileInView(String bmpFileAddress, ImageView imageView, ProgressBar progressBar) {
