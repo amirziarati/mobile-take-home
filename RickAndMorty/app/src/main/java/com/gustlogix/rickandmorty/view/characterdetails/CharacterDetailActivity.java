@@ -2,8 +2,10 @@ package com.gustlogix.rickandmorty.view.characterdetails;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gustlogix.rickandmorty.R;
 import com.gustlogix.rickandmorty.SimpleServiceLocator;
@@ -52,22 +54,17 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
         tvLocation.setText(characterDetails.getLocation().getName());
         tvGender.setText(characterDetails.getGender());
         tvSpecies.setText(characterDetails.getSpecies());
-        tvStatus.setText(characterDetails.getStatus());
+        if (characterDetails.getIsKilledByUser() != null && characterDetails.getIsKilledByUser()) {
+            tvStatus.setText("Killed By You :/");
+        } else {
+            tvStatus.setText(characterDetails.getStatus());
+        }
         imageDownloader.loadImage(characterDetails.getImage(), imgCharacter);
     }
 
     @Override
-    public void showProgress() {
-
-    }
-
-    @Override
-    public void hideProgress() {
-
-    }
-
-    @Override
     public void showMessage(String message) {
-
+        Toast.makeText(CharacterDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+        Log.i("R&M", message);
     }
 }

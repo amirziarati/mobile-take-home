@@ -28,15 +28,15 @@ public interface DbHelper {
 
     AllEpisodeResponse fetchAllEpisodes(int page, int pageSize);
 
-    long insertCharacter(CharacterResult characterResult);
+    long insertOrUpdateCharacter(CharacterResult characterResult);
 
-    void insertCharacters(List<CharacterResult> characterResults);
+    void insertOrUpdateCharacters(List<CharacterResult> characterResults);
 
-    long insertEpisode(EpisodeResult episodeResult);
+    long insertOrUpdateEpisode(EpisodeResult episodeResult);
 
-    void insertEpisodes(List<EpisodeResult> episodeResults);
+    void insertOrUpdateEpisodes(List<EpisodeResult> episodeResults);
 
-    long insertFileCache(FileCacheEntry fileCacheEntry);
+    long insertOrUpdateFileCache(FileCacheEntry fileCacheEntry);
 
     long removeFileCache(FileCacheEntry fileCacheEntry);
 

@@ -2,7 +2,6 @@ package com.gustlogix.rickandmorty.view.episode;
 
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface EpisodesView {
@@ -12,7 +11,7 @@ public interface EpisodesView {
 
     void addNewEpisodesToView(List<EpisodeResult> episodes);
 
-    void navigateToCharactersView(ArrayList<Integer> characterIds);
+    void navigateToCharactersView(List<Integer> characterIds);
 
     void showMessage(String message);
 }

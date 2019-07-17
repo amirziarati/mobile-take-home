@@ -44,4 +44,20 @@ public class CharactersPresenterImpl implements CharactersPresenter {
     public void onCharacterClicked(CharacterResult characterResult) {
         view.navigateToCharacterDetailView(characterResult);
     }
+
+    @Override
+    public void onKillCharacterClicked(CharacterResult characterResult) {
+        characterRepository.killCharacter(characterResult, new RepositoryCallback<CharacterResult>() {
+            @Override
+            public void onSuccess(Response<CharacterResult> response) {
+                view.updateCharacter(response.getResult());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                view.showMessage("apparently character is too tough to kill");
+                Log.e("R&M", "error killing the character : " + e.getMessage());
+            }
+        });
+    }
 }

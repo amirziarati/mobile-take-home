@@ -4,6 +4,7 @@ import com.gustlogix.rickandmorty.dto.character.CharacterResult;
 import com.gustlogix.rickandmorty.repo.local.LocalRepositoryCallback;
 import com.gustlogix.rickandmorty.repo.local.OnLocalDataUpdateCallback;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface CharacterLocalService {
@@ -12,7 +13,9 @@ public interface CharacterLocalService {
 
     void fetchMultipleCharacter(List<Integer> characterIds, LocalRepositoryCallback<List<CharacterResult>> callback);
 
-    void updateCharacter(CharacterResult data);
+    void insertOrUpdateCharacter(CharacterResult data, final OnLocalDataUpdateCallback onLocalDataUpdateCallback);
 
-    void updateCharacters(List<CharacterResult> data, OnLocalDataUpdateCallback onLocalDataUpdateCallback);
+    void insertOrUpdateCharacters(List<CharacterResult> data, OnLocalDataUpdateCallback onLocalDataUpdateCallback);
+
+    void fetchKilledByUserCharactersStatusByIds(List<Integer> charactersIds, LocalRepositoryCallback<HashMap<Integer, Boolean>> localRepositoryCallback);
 }

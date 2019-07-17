@@ -64,7 +64,7 @@ public class EpisodesPresenterImpl implements EpisodesPresenter {
 
     @Override
     public void onEpisodeClicked(EpisodeResult episodeResult) {
-        view.navigateToCharactersView(getIdsFromUrls(episodeResult.getCharacters()));
+        view.navigateToCharactersView(episodeResult.getCharactersIds());
     }
 
     private ArrayList<Integer> getIdsFromUrls(List<String> characters) {

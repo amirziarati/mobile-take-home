@@ -10,4 +10,5 @@ public interface CharactersView {
     void showCharacters(List<CharacterResult> characters);
     void showMessage(String message);
     void navigateToCharacterDetailView(CharacterResult characterResult);
+    void updateCharacter(CharacterResult characterResult);
 }

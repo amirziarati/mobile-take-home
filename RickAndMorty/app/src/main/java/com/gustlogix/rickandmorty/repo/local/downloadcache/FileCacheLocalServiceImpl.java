@@ -21,7 +21,7 @@ public class FileCacheLocalServiceImpl implements FileCacheLocalService {
         ApplicationThreadPool.execute(new Task<Void>() {
             @Override
             public Void execute() {
-                dbHelper.insertFileCache(fileCacheEntry);
+                dbHelper.insertOrUpdateFileCache(fileCacheEntry);
                 return null;
             }
         }, new TaskCallback<Void>() {

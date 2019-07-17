@@ -56,8 +56,7 @@ public class SimpleServiceLocator {
     }
 
     public static SimpleServiceLocator getInstance() {
-        if(context == null)
-        {
+        if (context == null) {
             new IllegalStateException("the service locator has to be initialized in Application class' onCreate !!");
         }
         if (instance == null)

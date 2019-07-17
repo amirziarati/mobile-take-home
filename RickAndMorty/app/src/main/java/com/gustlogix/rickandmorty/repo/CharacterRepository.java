@@ -10,4 +10,5 @@ public interface CharacterRepository {
 
     void getMultipleCharacters(List<Integer> ids, RepositoryCallback<List<CharacterResult>> callback);
 
+    void killCharacter(CharacterResult characterResult, RepositoryCallback<CharacterResult> callback);
 }

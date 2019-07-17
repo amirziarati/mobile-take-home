@@ -16,19 +16,24 @@ public class ApplicationThreadPool {
             public void run() {
                 try {
                     final T result = task.execute();
-                    callerThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            callback.onResult(result);
-                        }
-                    });
+                    if (callback != null) {
+                        callerThreadHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                callback.onResult(result);
+                            }
+                        });
+                    }
                 } catch (final Exception e) {
-                    callerThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            callback.onError(e);
-                        }
-                    });
+                    if (callback != null) {
+
+                        callerThreadHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                callback.onError(e);
+                            }
+                        });
+                    }
                 }
             }
 

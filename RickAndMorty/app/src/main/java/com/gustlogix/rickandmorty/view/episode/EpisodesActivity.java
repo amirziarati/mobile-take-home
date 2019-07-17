@@ -79,15 +79,15 @@ public class EpisodesActivity extends Activity implements EpisodesView {
     }
 
     @Override
-    public void navigateToCharactersView(ArrayList<Integer> characterIds) {
+    public void navigateToCharactersView(List<Integer> characterIds) {
         Intent intent = new Intent(EpisodesActivity.this, CharactersActivity.class);
-        intent.putIntegerArrayListExtra(CharactersActivity.IDS_LIST_ARG, characterIds);
+        intent.putIntegerArrayListExtra(CharactersActivity.IDS_LIST_ARG, new ArrayList<Integer>(characterIds));
         startActivity(intent);
     }
 
     @Override
     public void showMessage(String message) {
-        Toast.makeText(EpisodesActivity.this, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(EpisodesActivity.this, message, Toast.LENGTH_SHORT).show();
         Log.i("R&M", message);
     }
 }

@@ -44,7 +44,7 @@ public class DbHelperImplTest {
         CharacterResult input = provideCharacter("1");
 
         // When
-        dbHelper.insertCharacter(input);
+        dbHelper.insertOrUpdateCharacter(input);
         CharacterResult result = dbHelper.fetchSingleCharacter(input.getId());
 
         // Then
@@ -57,7 +57,7 @@ public class DbHelperImplTest {
         CharacterResult input = provideCharacterWithEmptyEpisodesList();
 
         // When
-        dbHelper.insertCharacter(input);
+        dbHelper.insertOrUpdateCharacter(input);
         CharacterResult result = dbHelper.fetchSingleCharacter(input.getId());
 
         // Then
@@ -71,7 +71,7 @@ public class DbHelperImplTest {
         CharacterResult input = provideCharacterWithoutOrigin();
 
         // When
-        dbHelper.insertCharacter(input);
+        dbHelper.insertOrUpdateCharacter(input);
         CharacterResult result = dbHelper.fetchSingleCharacter(input.getId());
 
         // Then
@@ -85,7 +85,7 @@ public class DbHelperImplTest {
         CharacterResult input = provideCharacterWithoutLocation();
 
         // When
-        dbHelper.insertCharacter(input);
+        dbHelper.insertOrUpdateCharacter(input);
         CharacterResult result = dbHelper.fetchSingleCharacter(input.getId());
 
         // Then
@@ -102,8 +102,8 @@ public class DbHelperImplTest {
         input1.setId(1);
 
         // When
-        dbHelper.insertCharacter(input1);
-        dbHelper.insertCharacter(input2);
+        dbHelper.insertOrUpdateCharacter(input1);
+        dbHelper.insertOrUpdateCharacter(input2);
         List<Integer> ids = new ArrayList<>();
         ids.add(input1.getId());
         ids.add(input2.getId());
@@ -128,10 +128,10 @@ public class DbHelperImplTest {
         input1.setId(1);
 
         // When
-        dbHelper.insertCharacter(input1);
-        dbHelper.insertCharacter(input2);
-        dbHelper.insertCharacter(input3);
-        dbHelper.insertCharacter(input4);
+        dbHelper.insertOrUpdateCharacter(input1);
+        dbHelper.insertOrUpdateCharacter(input2);
+        dbHelper.insertOrUpdateCharacter(input3);
+        dbHelper.insertOrUpdateCharacter(input4);
         AllCharacterResponse result = dbHelper.fetchAllCharacters(1, 20);
 
         // Then
@@ -148,7 +148,7 @@ public class DbHelperImplTest {
         EpisodeResult input = provideEpisode("1");
 
         // When
-        dbHelper.insertEpisode(input);
+        dbHelper.insertOrUpdateEpisode(input);
         EpisodeResult result = dbHelper.fetchSingleEpisode(input.getId());
 
         // Then
@@ -161,7 +161,7 @@ public class DbHelperImplTest {
         EpisodeResult input = provideEpisodeWithoutCharacters();
 
         // When
-        dbHelper.insertEpisode(input);
+        dbHelper.insertOrUpdateEpisode(input);
         EpisodeResult result = dbHelper.fetchSingleEpisode(input.getId());
 
         // Then
@@ -180,8 +180,8 @@ public class DbHelperImplTest {
 
 
         // When
-        dbHelper.insertEpisode(input1);
-        dbHelper.insertEpisode(input2);
+        dbHelper.insertOrUpdateEpisode(input1);
+        dbHelper.insertOrUpdateEpisode(input2);
         List<Integer> ids = new ArrayList<>();
         ids.add(input1.getId());
         ids.add(input2.getId());
@@ -206,10 +206,10 @@ public class DbHelperImplTest {
         input4.setId(4);
 
         // When
-        dbHelper.insertEpisode(input1);
-        dbHelper.insertEpisode(input2);
-        dbHelper.insertEpisode(input3);
-        dbHelper.insertEpisode(input4);
+        dbHelper.insertOrUpdateEpisode(input1);
+        dbHelper.insertOrUpdateEpisode(input2);
+        dbHelper.insertOrUpdateEpisode(input3);
+        dbHelper.insertOrUpdateEpisode(input4);
         AllEpisodeResponse result = dbHelper.fetchAllEpisodes(1, 20);
 
         // Then
@@ -226,7 +226,7 @@ public class DbHelperImplTest {
         CharacterResult input = provideCharacter("1");
 
         // When
-        dbHelper.insertCharacter(input);
+        dbHelper.insertOrUpdateCharacter(input);
 
         // Then
         CharacterResult result = dbHelper.fetchSingleCharacter(input.getId());
@@ -242,8 +242,8 @@ public class DbHelperImplTest {
         input2.setId(2);
 
         // When
-        dbHelper.insertCharacter(input1);
-        dbHelper.insertCharacter(input2);
+        dbHelper.insertOrUpdateCharacter(input1);
+        dbHelper.insertOrUpdateCharacter(input2);
 
         // Then
         AllCharacterResponse result = dbHelper.fetchAllCharacters(1, 20);
@@ -256,7 +256,7 @@ public class DbHelperImplTest {
         FileCacheEntry input = provideFileCacheEntry();
 
         // When
-        dbHelper.insertFileCache(input);
+        dbHelper.insertOrUpdateFileCache(input);
         List<FileCacheEntry> result = dbHelper.fetchFileCaches();
 
         // Then
@@ -268,7 +268,7 @@ public class DbHelperImplTest {
     public void testRemoveFileCache() {
         // Given
         FileCacheEntry input = provideFileCacheEntry();
-        dbHelper.insertFileCache(input);
+        dbHelper.insertOrUpdateFileCache(input);
 
         // When
         dbHelper.removeFileCache(input);
@@ -286,8 +286,8 @@ public class DbHelperImplTest {
         FileCacheEntry input2 = provideFileCacheEntry2();
 
         // When
-        dbHelper.insertFileCache(input1);
-        dbHelper.insertFileCache(input2);
+        dbHelper.insertOrUpdateFileCache(input1);
+        dbHelper.insertOrUpdateFileCache(input2);
         List<FileCacheEntry> result = dbHelper.fetchFileCaches();
 
         // Then
@@ -301,8 +301,8 @@ public class DbHelperImplTest {
         // Given
         CharacterResult input1 = provideCharacter("1");
         CharacterResult input2 = provideCharacter("2");
-        dbHelper.insertCharacter(input1);
-        dbHelper.insertCharacter(input2);
+        dbHelper.insertOrUpdateCharacter(input1);
+        dbHelper.insertOrUpdateCharacter(input2);
 
         // When
         dbHelper.deleteAllCharacters();
@@ -317,16 +317,16 @@ public class DbHelperImplTest {
         // Given
         CharacterResult input4 = provideCharacter("4");
         input4.setId(4);
-        dbHelper.insertCharacter(input4);
+        dbHelper.insertOrUpdateCharacter(input4);
         CharacterResult input1 = provideCharacter("1");
         input1.setId(1);
-        dbHelper.insertCharacter(input1);
+        dbHelper.insertOrUpdateCharacter(input1);
         CharacterResult input3 = provideCharacter("3");
         input3.setId(3);
-        dbHelper.insertCharacter(input3);
+        dbHelper.insertOrUpdateCharacter(input3);
         CharacterResult input2 = provideCharacter("2");
         input2.setId(2);
-        dbHelper.insertCharacter(input2);
+        dbHelper.insertOrUpdateCharacter(input2);
 
         // When
         dbHelper.deleteAllEpisodes();

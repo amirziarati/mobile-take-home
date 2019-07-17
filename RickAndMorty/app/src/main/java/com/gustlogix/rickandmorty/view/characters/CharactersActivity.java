@@ -22,6 +22,7 @@ public class CharactersActivity extends Activity implements CharactersView {
     public static final String IDS_LIST_ARG = "character_ids";
     LinearLayout llProgressBar;
     ListView lstCharacters;
+    CharactersAdapter adapter;
 
     CharactersPresenter presenter;
 
@@ -30,12 +31,17 @@ public class CharactersActivity extends Activity implements CharactersView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_characters);
 
-        ArrayList<Integer> characterIds = getIntent().getIntegerArrayListExtra(IDS_LIST_ARG);
 
         presenter = SimpleServiceLocator.getInstance().getCharacterPresenter(this);
 
         llProgressBar = findViewById(R.id.llProgressbar);
         lstCharacters = findViewById(R.id.lstCharacters);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        ArrayList<Integer> characterIds = getIntent().getIntegerArrayListExtra(IDS_LIST_ARG);
         presenter.onInit(characterIds);
     }
 
@@ -51,12 +57,18 @@ public class CharactersActivity extends Activity implements CharactersView {
 
     @Override
     public void showCharacters(List<CharacterResult> characters) {
-        lstCharacters.setAdapter(new CharactersAdapter(CharactersActivity.this, characters, new CharactersAdapter.OnItemClickListener() {
+        adapter = new CharactersAdapter(CharactersActivity.this, SimpleServiceLocator.getInstance().getImageDownloader(), characters, new CharactersAdapter.OnItemInteractionListener() {
             @Override
             public void onItemClicked(CharacterResult characterResult) {
                 presenter.onCharacterClicked(characterResult);
             }
-        }));
+
+            @Override
+            public void onKillClicked(CharacterResult characterResult) {
+                presenter.onKillCharacterClicked(characterResult);
+            }
+        });
+        lstCharacters.setAdapter(adapter);
     }
 
     @Override
@@ -67,8 +79,13 @@ public class CharactersActivity extends Activity implements CharactersView {
     }
 
     @Override
+    public void updateCharacter(CharacterResult characterResult) {
+        adapter.updateCharacter(characterResult);
+    }
+
+    @Override
     public void showMessage(String message) {
-        Toast.makeText(CharactersActivity.this, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(CharactersActivity.this, message, Toast.LENGTH_SHORT).show();
         Log.i("R&M", message);
     }
 }

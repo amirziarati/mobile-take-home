@@ -8,6 +8,7 @@ import com.gustlogix.rickandmorty.thread.ApplicationThreadPool;
 import com.gustlogix.rickandmorty.thread.Task;
 import com.gustlogix.rickandmorty.thread.TaskCallback;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class CharacterLocalServiceImpl implements CharacterLocalService {
@@ -60,33 +61,59 @@ public class CharacterLocalServiceImpl implements CharacterLocalService {
     }
 
     @Override
-    public void updateCharacter(final CharacterResult characterResult) {
-        ApplicationThreadPool.execute(new Task<Void>() {
+    public void fetchKilledByUserCharactersStatusByIds(final List<Integer> charactersIds, final LocalRepositoryCallback<HashMap<Integer, Boolean>> callback) {
+        ApplicationThreadPool.execute(new Task<HashMap<Integer, Boolean>>() {
             @Override
-            public Void execute() {
-                dbHelper.insertCharacter(characterResult);
-                return null;
-            }
-        }, new TaskCallback<Void>() {
-            @Override
-            public void onResult(Void result) {
+            public HashMap<Integer, Boolean> execute() {
+                List<CharacterResult> characterResults = dbHelper.fetchMultipleCharacter(charactersIds);
+                HashMap<Integer, Boolean> mapKilledByUserStatus = new HashMap<>();
+                for (CharacterResult character : characterResults) {
+                    mapKilledByUserStatus.put(character.getId(), character.getIsKilledByUser());
+                }
 
+                return mapKilledByUserStatus;
+            }
+        }, new TaskCallback<HashMap<Integer, Boolean>>() {
+            @Override
+            public void onResult(HashMap<Integer, Boolean> response) {
+                callback.onSuccess(response);
             }
 
             @Override
             public void onError(Exception e) {
-
+                callback.onError(e);
             }
         });
     }
 
     @Override
-    public void updateCharacters(final List<CharacterResult> characterResults, final OnLocalDataUpdateCallback onLocalDataUpdateCallback) {
+    public void insertOrUpdateCharacter(final CharacterResult characterResult, final OnLocalDataUpdateCallback onLocalDataUpdateCallback) {
+        ApplicationThreadPool.execute(new Task<Void>() {
+            @Override
+            public Void execute() {
+                dbHelper.insertOrUpdateCharacter(characterResult);
+                return null;
+            }
+        }, new TaskCallback<Void>() {
+            @Override
+            public void onResult(Void result) {
+                onLocalDataUpdateCallback.onUpdateDone();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                onLocalDataUpdateCallback.onError(e);
+            }
+        });
+    }
+
+    @Override
+    public void insertOrUpdateCharacters(final List<CharacterResult> characterResults, final OnLocalDataUpdateCallback onLocalDataUpdateCallback) {
         ApplicationThreadPool.execute(new Task<Void>() {
 
             @Override
             public Void execute() {
-                dbHelper.insertCharacters(characterResults);
+                dbHelper.insertOrUpdateCharacters(characterResults);
                 return null;
             }
         }, new TaskCallback<Void>() {

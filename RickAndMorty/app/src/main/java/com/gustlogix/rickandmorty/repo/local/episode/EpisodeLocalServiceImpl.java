@@ -81,11 +81,11 @@ public class EpisodeLocalServiceImpl implements EpisodeLocalService {
     }
 
     @Override
-    public void updateEpisode(final EpisodeResult data) {
+    public void insertOrUpdateEpisode(final EpisodeResult data, OnLocalDataUpdateCallback onLocalDataUpdateCallback) {
         ApplicationThreadPool.execute(new Task<Void>() {
             @Override
             public Void execute() {
-                dbHelper.insertEpisode(data);
+                dbHelper.insertOrUpdateEpisode(data);
                 return null;
             }
         }, new TaskCallback<Void>() {
@@ -102,11 +102,11 @@ public class EpisodeLocalServiceImpl implements EpisodeLocalService {
     }
 
     @Override
-    public void updateEpisodes(final List<EpisodeResult> episodes, final OnLocalDataUpdateCallback onLocalDataUpdateCallback) {
+    public void insertOrUpdateEpisodes(final List<EpisodeResult> episodes, final OnLocalDataUpdateCallback onLocalDataUpdateCallback) {
         ApplicationThreadPool.execute(new Task<Void>() {
             @Override
             public Void execute() {
-                dbHelper.insertEpisodes(episodes);
+                dbHelper.insertOrUpdateEpisodes(episodes);
                 return null;
             }
         }, new TaskCallback<Void>() {

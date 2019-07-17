@@ -1,5 +1,7 @@
 package com.gustlogix.rickandmorty.repo;
 
+import android.util.Log;
+
 import com.gustlogix.rickandmorty.dto.Response;
 import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
@@ -26,11 +28,21 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
         remoteService.fetchSingleEpisode(id, new RemoteRepositoryCallback<EpisodeResult>() {
             @Override
             public void onSuccess(EpisodeResult episode) {
-                localService.updateEpisode(episode);
                 Response response = new Response();
                 response.setOnline(true);
                 response.setResult(episode);
                 callback.onSuccess(response);
+                localService.insertOrUpdateEpisode(episode, new OnLocalDataUpdateCallback() {
+                    @Override
+                    public void onUpdateDone() {
+                        Log.i("R&M", "episode server data was cached to database successfully");
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.i("R&M", "error while caching episode to database : " + e.toString());
+                    }
+                });
             }
 
             @Override
@@ -58,22 +70,19 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
         remoteService.fetchMultipleEpisodes(ids, new RemoteRepositoryCallback<List<EpisodeResult>>() {
             @Override
             public void onSuccess(final List<EpisodeResult> data) {
-                localService.updateEpisodes(data, new OnLocalDataUpdateCallback() {
+                Response response = new Response();
+                response.setOnline(true);
+                response.setResult(data);
+                callback.onSuccess(response);
+                localService.insertOrUpdateEpisodes(data, new OnLocalDataUpdateCallback() {
                     @Override
                     public void onUpdateDone() {
-                        Response response = new Response();
-                        response.setOnline(true);
-                        response.setResult(data);
-                        callback.onSuccess(response);
+                        Log.i("R&M", "episodes server data was cached to database successfully");
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        e.printStackTrace();
-                        Response response = new Response();
-                        response.setOnline(true);
-                        response.setResult(data);
-                        callback.onSuccess(response);
+                        Log.i("R&M", "error while caching episodes to database : " + e.toString());
                     }
                 });
             }
@@ -103,7 +112,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
         remoteService.fetchAllEpisodes(page, new RemoteRepositoryCallback<AllEpisodeResponse>() {
             @Override
             public void onSuccess(final AllEpisodeResponse data) {
-                localService.updateEpisodes(data.getResults(), new OnLocalDataUpdateCallback() {
+                localService.insertOrUpdateEpisodes(data.getResults(), new OnLocalDataUpdateCallback() {
                     @Override
                     public void onUpdateDone() {
                         Response response = new Response();

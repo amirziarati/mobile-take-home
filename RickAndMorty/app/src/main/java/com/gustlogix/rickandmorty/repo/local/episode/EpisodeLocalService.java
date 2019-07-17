@@ -15,7 +15,7 @@ public interface EpisodeLocalService {
 
     void fetchAllEpisodes(int page, int pageSize, LocalRepositoryCallback<AllEpisodeResponse> callback);
 
-    void updateEpisode(EpisodeResult data);
+    void insertOrUpdateEpisode(EpisodeResult data, OnLocalDataUpdateCallback onLocalDataUpdateCallback);
 
-    void updateEpisodes(List<EpisodeResult> data, OnLocalDataUpdateCallback onLocalDataUpdateCallback);
+    void insertOrUpdateEpisodes(List<EpisodeResult> data, OnLocalDataUpdateCallback onLocalDataUpdateCallback);
 }

@@ -18,6 +18,8 @@ public class CharacterResult implements Serializable {
     private List<String> episode = null;
     private String url;
     private String created;
+    //this value is only used in client side
+    private Boolean isKilledByUser;
 
     public Integer getId() {
         return id;
@@ -115,4 +117,11 @@ public class CharacterResult implements Serializable {
         this.created = created;
     }
 
+    public void setIsKilledByUser(Boolean isKilledByUser) {
+        this.isKilledByUser = isKilledByUser;
+    }
+
+    public Boolean getIsKilledByUser() {
+        return isKilledByUser;
+    }
 }

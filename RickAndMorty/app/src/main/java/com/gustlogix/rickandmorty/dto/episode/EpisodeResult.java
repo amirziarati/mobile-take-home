@@ -1,6 +1,7 @@
 
 package com.gustlogix.rickandmorty.dto.episode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EpisodeResult {
@@ -48,6 +49,19 @@ public class EpisodeResult {
     public List<String> getCharacters() {
         return characters;
     }
+
+    public List<Integer> getCharactersIds() {
+        ArrayList<Integer> ids = new ArrayList<>();
+        for (String url : characters) {
+            if (url.endsWith("/")) {
+                url = url.substring(0, url.length() - 1);
+            }
+            String stringID = url.substring(url.lastIndexOf('/') + 1);
+            ids.add(Integer.parseInt(stringID));
+        }
+        return ids;
+    }
+
 
     public void setCharacters(List<String> characters) {
         this.characters = characters;

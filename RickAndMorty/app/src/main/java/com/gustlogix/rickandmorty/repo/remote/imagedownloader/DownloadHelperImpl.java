@@ -53,7 +53,7 @@ public class DownloadHelperImpl implements DownloadHelper {
                     if (!new File(downloadPath).exists()) {
                         new File(downloadPath).mkdirs();
                     }
-                    String fileName = downloadPath + "/" + System.currentTimeMillis();
+                    String fileName = downloadPath + "/" + System.currentTimeMillis() + "_" + urlString.hashCode();
                     final DownloadInfo downloadInfo = new DownloadInfo(callback, fileName, urlString);
 
                     downloadInBackgroundThreadAndReturnResultToCallback(downloadInfo);

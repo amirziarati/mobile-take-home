@@ -17,8 +17,10 @@ public class ImageDownloaderImpl implements ImageDownloader {
 
     @Override
     public void loadImage(final String url, final ImageView imageView, final ProgressBar progressBar) {
+        showResultImageInView(imageView, progressBar, null);
+
         if (url.trim().isEmpty()) {
-            showResultImageInView(imageView, progressBar, null);
+            return;
         }
 
         downloadHelper.download(url, new DownloadManagerCallback() {

@@ -7,4 +7,5 @@ import java.util.List;
 public interface CharactersPresenter {
     void onInit(List<Integer> characterIds);
     void onCharacterClicked(CharacterResult characterResult);
+    void onKillCharacterClicked(CharacterResult characterResult);
 }

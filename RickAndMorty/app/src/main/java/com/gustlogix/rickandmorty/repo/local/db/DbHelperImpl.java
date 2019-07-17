@@ -260,35 +260,10 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public long insertCharacter(CharacterResult characterResult) {
+    public long insertOrUpdateCharacter(CharacterResult characterResult) {
         SQLiteDatabase db = getWritableDatabase();
         try {
-            ContentValues values = new ContentValues();
-            values.put(DB.CHARACTER.C_ID, characterResult.getId());
-            values.put(DB.CHARACTER.C_NAME, characterResult.getName());
-            values.put(DB.CHARACTER.C_STATUS, characterResult.getStatus());
-            values.put(DB.CHARACTER.C_SPECIES, characterResult.getSpecies());
-            values.put(DB.CHARACTER.C_TYPE, characterResult.getType());
-            values.put(DB.CHARACTER.C_GENDER, characterResult.getGender());
-            if (characterResult.getOrigin() != null) {
-                values.put(DB.CHARACTER.C_ORIGIN_NAME, characterResult.getOrigin().getName());
-                values.put(DB.CHARACTER.C_ORIGIN_URL, characterResult.getOrigin().getUrl());
-            }
-            if (characterResult.getLocation() != null) {
-                values.put(DB.CHARACTER.C_LOCATION_NAME, characterResult.getLocation().getName());
-                values.put(DB.CHARACTER.C_LOCATION_URL, characterResult.getLocation().getUrl());
-            }
-            if (characterResult.getEpisode() != null) {
-                values.put(DB.CHARACTER.C_COMMA_SEPARATED_EPISODES, getCommaSeparatedEpisodes(characterResult));
-            }
-            values.put(DB.CHARACTER.C_URL, characterResult.getUrl());
-            values.put(DB.CHARACTER.C_IMAGE, characterResult.getImage());
-            values.put(DB.CHARACTER.C_CREATED, characterResult.getCreated());
-            long id = db.insertWithOnConflict(DB.CHARACTER.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-            if (id == -1) {
-                id = db.update(DB.CHARACTER.TABLE_NAME, values, getCharacterSelection(), new String[]{characterResult.getId().toString()});
-            }
-            return id;
+            return executeInsertOrUpdateCharacter(characterResult, db);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -298,29 +273,54 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public void insertCharacters(List<CharacterResult> characterResults) {
+    public void insertOrUpdateCharacters(List<CharacterResult> characterResults) {
+        SQLiteDatabase db = getWritableDatabase();
         for (CharacterResult characterResult : characterResults) {
-            insertCharacter(characterResult);
+            try {
+                executeInsertOrUpdateCharacter(characterResult, db);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+        db.close();
+    }
+
+    private long executeInsertOrUpdateCharacter(CharacterResult characterResult, SQLiteDatabase db) {
+        ContentValues values = new ContentValues();
+        values.put(DB.CHARACTER.C_ID, characterResult.getId());
+        values.put(DB.CHARACTER.C_NAME, characterResult.getName());
+        values.put(DB.CHARACTER.C_STATUS, characterResult.getStatus());
+        if (characterResult.getIsKilledByUser() != null)
+            values.put(DB.CHARACTER.C_IS_KILLED_BY_USER, characterResult.getIsKilledByUser() ? 1 : 0);
+        values.put(DB.CHARACTER.C_SPECIES, characterResult.getSpecies());
+        values.put(DB.CHARACTER.C_TYPE, characterResult.getType());
+        values.put(DB.CHARACTER.C_GENDER, characterResult.getGender());
+        if (characterResult.getOrigin() != null) {
+            values.put(DB.CHARACTER.C_ORIGIN_NAME, characterResult.getOrigin().getName());
+            values.put(DB.CHARACTER.C_ORIGIN_URL, characterResult.getOrigin().getUrl());
+        }
+        if (characterResult.getLocation() != null) {
+            values.put(DB.CHARACTER.C_LOCATION_NAME, characterResult.getLocation().getName());
+            values.put(DB.CHARACTER.C_LOCATION_URL, characterResult.getLocation().getUrl());
+        }
+        if (characterResult.getEpisode() != null) {
+            values.put(DB.CHARACTER.C_COMMA_SEPARATED_EPISODES, getCommaSeparatedEpisodes(characterResult));
+        }
+        values.put(DB.CHARACTER.C_URL, characterResult.getUrl());
+        values.put(DB.CHARACTER.C_IMAGE, characterResult.getImage());
+        values.put(DB.CHARACTER.C_CREATED, characterResult.getCreated());
+        long id = db.insertWithOnConflict(DB.CHARACTER.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        if (id == -1) {
+            id = db.update(DB.CHARACTER.TABLE_NAME, values, getCharacterSelection(), new String[]{characterResult.getId().toString()});
+        }
+        return id;
     }
 
     @Override
-    public long insertEpisode(EpisodeResult episodeResult) {
+    public long insertOrUpdateEpisode(EpisodeResult episodeResult) {
         SQLiteDatabase db = getWritableDatabase();
         try {
-            ContentValues values = new ContentValues();
-            values.put(DB.EPISODE.C_ID, episodeResult.getId());
-            values.put(DB.EPISODE.C_NAME, episodeResult.getName());
-            values.put(DB.EPISODE.C_AIR_DATE, episodeResult.getAirDate());
-            values.put(DB.EPISODE.C_EPISODE, episodeResult.getEpisode());
-            values.put(DB.EPISODE.C_COMMA_SEPARATED_CHARACTERS, getCommaSeparatedCharacters(episodeResult));
-            values.put(DB.EPISODE.C_URL, episodeResult.getUrl());
-            values.put(DB.EPISODE.C_CREATED, episodeResult.getCreated());
-            long id = db.insertWithOnConflict(DB.EPISODE.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-            if (id == -1) {
-                id = db.update(DB.EPISODE.TABLE_NAME, values, getEpisodeSelection(), new String[]{episodeResult.getId().toString()});
-            }
-            return id;
+            return executeInsertOrUpdateEpisode(episodeResult, db);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -330,31 +330,57 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public void insertEpisodes(List<EpisodeResult> episodeResults) {
+    public void insertOrUpdateEpisodes(List<EpisodeResult> episodeResults) {
+        SQLiteDatabase db = getWritableDatabase();
         for (EpisodeResult episodeResult : episodeResults) {
-            insertEpisode(episodeResult);
+            try {
+                executeInsertOrUpdateEpisode(episodeResult, db);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+        db.close();
+    }
+
+    private long executeInsertOrUpdateEpisode(EpisodeResult episodeResult, SQLiteDatabase db) {
+        ContentValues values = new ContentValues();
+        values.put(DB.EPISODE.C_ID, episodeResult.getId());
+        values.put(DB.EPISODE.C_NAME, episodeResult.getName());
+        values.put(DB.EPISODE.C_AIR_DATE, episodeResult.getAirDate());
+        values.put(DB.EPISODE.C_EPISODE, episodeResult.getEpisode());
+        values.put(DB.EPISODE.C_COMMA_SEPARATED_CHARACTERS, getCommaSeparatedCharacters(episodeResult));
+        values.put(DB.EPISODE.C_URL, episodeResult.getUrl());
+        values.put(DB.EPISODE.C_CREATED, episodeResult.getCreated());
+        long id = db.insertWithOnConflict(DB.EPISODE.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        if (id == -1) {
+            id = db.update(DB.EPISODE.TABLE_NAME, values, getEpisodeSelection(), new String[]{episodeResult.getId().toString()});
+        }
+        return id;
     }
 
     @Override
-    public long insertFileCache(FileCacheEntry fileCacheEntry) {
+    public long insertOrUpdateFileCache(FileCacheEntry fileCacheEntry) {
         SQLiteDatabase db = getWritableDatabase();
         try {
-            ContentValues values = new ContentValues();
-            values.put(DB.FILECACHE.C_URL, fileCacheEntry.getUrl());
-            values.put(DB.FILECACHE.C_FILE_NAME, fileCacheEntry.getFileName());
-            values.put(DB.FILECACHE.C_LAST_RETRIEVED, fileCacheEntry.getLastRetrievedTimeStamp());
-            long id = db.insertWithOnConflict(DB.FILECACHE.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-            if (id == -1) {
-                id = db.update(DB.FILECACHE.TABLE_NAME, values, getFileCacheSelection(), new String[]{fileCacheEntry.getUrl()});
-            }
-            return id;
+            return executeInsertOrUpdateFileCache(fileCacheEntry, db);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
         } finally {
             db.close();
         }
+    }
+
+    private long executeInsertOrUpdateFileCache(FileCacheEntry fileCacheEntry, SQLiteDatabase db) {
+        ContentValues values = new ContentValues();
+        values.put(DB.FILECACHE.C_URL, fileCacheEntry.getUrl());
+        values.put(DB.FILECACHE.C_FILE_NAME, fileCacheEntry.getFileName());
+        values.put(DB.FILECACHE.C_LAST_RETRIEVED, fileCacheEntry.getLastRetrievedTimeStamp());
+        long id = db.insertWithOnConflict(DB.FILECACHE.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        if (id == -1) {
+            id = db.update(DB.FILECACHE.TABLE_NAME, values, getFileCacheSelection(), new String[]{fileCacheEntry.getUrl()});
+        }
+        return id;
     }
 
     @Override
@@ -457,6 +483,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
         characterResult.setEpisode(extractEpisodes(cursor));
         characterResult.setUrl(cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_URL)));
         characterResult.setCreated(cursor.getString(cursor.getColumnIndex(DB.CHARACTER.C_CREATED)));
+        characterResult.setIsKilledByUser(cursor.getInt(cursor.getColumnIndex(DB.CHARACTER.C_IS_KILLED_BY_USER)) == 1);
         return characterResult;
     }
 
@@ -545,7 +572,8 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
                 DB.CHARACTER.C_COMMA_SEPARATED_EPISODES,
                 DB.CHARACTER.C_URL,
                 DB.CHARACTER.C_CREATED,
-                DB.CHARACTER.C_IMAGE
+                DB.CHARACTER.C_IMAGE,
+                DB.CHARACTER.C_IS_KILLED_BY_USER
         };
         return projection;
     }
@@ -639,6 +667,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
                     CHARACTER.C_COMMA_SEPARATED_EPISODES + " TEXT ," +
                     CHARACTER.C_URL + " TEXT ," +
                     CHARACTER.C_IMAGE + " TEXT ," +
+                    CHARACTER.C_IS_KILLED_BY_USER + " INTEGER ," +
                     CHARACTER.C_CREATED + " TEXT);";
             static final String TABLE_NAME = "CHARACTER";
             static final String C_ID = "id";
@@ -655,6 +684,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
             static final String C_URL = "url";
             static final String C_IMAGE = "image";
             static final String C_CREATED = "created";
+            static final String C_IS_KILLED_BY_USER = "is_killed_by_user";
         }
 
         static class EPISODE {
