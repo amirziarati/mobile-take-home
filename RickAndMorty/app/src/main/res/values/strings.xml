@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">RickAndMorty</string>
+    <string name="character_name">Name:</string>
+    <string name="species">Species:</string>
+    <string name="status">Status:</string>
+    <string name="gender">Gender:</string>
+    <string name="location">Location:</string>
+    <string name="killed_by">Killed By You :/</string>
+    <string name="details">Details</string>
 </resources>

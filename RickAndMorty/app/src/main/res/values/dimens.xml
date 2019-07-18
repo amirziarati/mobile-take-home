@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="title_weight_character">2</dimen>
+    <dimen name="value_weight_character">8</dimen>
+</resources>

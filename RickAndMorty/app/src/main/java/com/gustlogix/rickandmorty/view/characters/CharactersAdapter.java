@@ -58,6 +58,7 @@ public class CharactersAdapter extends BaseAdapter {
             holder.llContainer = convertView.findViewById(R.id.llContainer);
             holder.btnKill = convertView.findViewById(R.id.btnKill);
             holder.imgCharacter = convertView.findViewById(R.id.imgCharacter);
+            holder.imgDead = convertView.findViewById(R.id.imgDead);
 
             convertView.setTag(holder);
         } else {
@@ -71,10 +72,12 @@ public class CharactersAdapter extends BaseAdapter {
         if ((getItem(position).getIsKilledByUser() != null && getItem(position).getIsKilledByUser()) ||
                 getItem(position).getStatus().trim().toLowerCase().equals("dead")) {
             holder.llContainer.setBackgroundResource(R.color.colorAccent);
-            holder.btnKill.setEnabled(false);
+            holder.imgDead.setVisibility(View.VISIBLE);
+            holder.btnKill.setVisibility(View.INVISIBLE);
         } else {
+            holder.imgDead.setVisibility(View.INVISIBLE);
             holder.llContainer.setBackgroundResource(R.color.colorPrimary);
-            holder.btnKill.setEnabled(true);
+            holder.btnKill.setVisibility(View.VISIBLE);
         }
 
         holder.llContainer.setOnClickListener(new View.OnClickListener() {
@@ -107,6 +110,7 @@ public class CharactersAdapter extends BaseAdapter {
 
     private static class ViewHolder {
         ImageView imgCharacter;
+        ImageView imgDead;
         TextView tvName;
         TextView tvSpecies;
         Button btnKill;

@@ -15,52 +15,227 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/imgCharacter"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="291dp"
-                android:layout_margin="15dp"
-                tools:src="@mipmap/ic_launcher" />
+                android:layout_height="256dp">
 
-            <TextView
-                android:id="@+id/tvName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:textSize="20sp"
-                tools:text="Android Robot" />
+                <ImageView
+                    android:id="@+id/imgCharacter"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    tools:src="@mipmap/ic_launcher" />
 
-            <TextView
-                android:id="@+id/tvSpecies"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:textSize="20sp"
-                tools:text="Geeks" />
+                <View
+                    android:id="@+id/viewShadow"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#88FFFFFF"
+                    android:visibility="invisible"
+                    tools:visibility="visible" />
 
-            <TextView
-                android:id="@+id/tvStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:textSize="20sp"
-                tools:text="Schrodinger's Cat state" />
+                <ImageView
+                    android:id="@+id/imgDeadStamp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="bottom|right"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/dead"
+                    android:visibility="invisible"
+                    tools:visibility="visible" />
 
-            <TextView
-                android:id="@+id/tvGender"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:textSize="20sp"
-                tools:text="neutral" />
+            </FrameLayout>
 
-            <TextView
-                android:id="@+id/tvLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:textSize="20sp"
-                tools:text="Google Labs" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#CCCCCC" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvDetailTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#DDDDDD"
+                    android:padding="16dp"
+                    android:text="@string/details"
+                    android:textSize="24sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvNameTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_weight="@dimen/title_weight_character"
+                        android:text="@string/character_name"
+                        android:textSize="16sp"
+                        tools:text="Name: " />
+
+                    <TextView
+                        android:id="@+id/tvName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toEndOf="@+id/tvNameTitle"
+                        android:layout_toRightOf="@+id/tvNameTitle"
+                        android:layout_weight="@dimen/value_weight_character"
+                        android:textSize="16sp"
+                        tools:text="Morty" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvSpeciesTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_weight="@dimen/title_weight_character"
+                        android:text="@string/species"
+                        android:textSize="16sp"
+                        tools:text="Species: " />
+
+                    <TextView
+                        android:id="@+id/tvSpecies"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_toEndOf="@+id/tvSpeciesTitle"
+                        android:layout_toRightOf="@+id/tvSpeciesTitle"
+                        android:layout_weight="@dimen/value_weight_character"
+                        android:textSize="16sp"
+                        tools:text="Geeks" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvStatusTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_weight="@dimen/title_weight_character"
+                        android:text="@string/status"
+                        android:textSize="16sp"
+                        tools:text="Status: " />
+
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_toEndOf="@+id/tvStatusTitle"
+                        android:layout_toRightOf="@+id/tvStatusTitle"
+                        android:layout_weight="@dimen/value_weight_character"
+                        android:text="@string/status"
+                        android:textSize="16sp"
+                        tools:text="Status" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvGenderTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_weight="@dimen/title_weight_character"
+                        android:text="@string/gender"
+                        android:textSize="16sp"
+                        tools:text="Gender: " />
+
+                    <TextView
+                        android:id="@+id/tvGender"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_toEndOf="@+id/tvGenderTitle"
+                        android:layout_toRightOf="@+id/tvGenderTitle"
+                        android:layout_weight="@dimen/value_weight_character"
+                        android:text="@string/gender"
+                        android:textSize="16sp"
+                        tools:text="Gender" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvLocationTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_weight="@dimen/title_weight_character"
+                        android:text="@string/location"
+                        android:textSize="16sp"
+                        tools:text="Location: " />
+
+                    <TextView
+                        android:id="@+id/tvLocation"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_toEndOf="@+id/tvLocationTitle"
+                        android:layout_toRightOf="@+id/tvLocationTitle"
+                        android:layout_weight="@dimen/value_weight_character"
+                        android:textSize="16sp"
+                        tools:text="Location" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
+
     </ScrollView>
+
 </LinearLayout>

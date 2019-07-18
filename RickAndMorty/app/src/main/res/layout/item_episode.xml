@@ -1,17 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/llContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="15dp"
-    android:id="@+id/llContainer"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="18dp">
 
-    <TextView
-        android:id="@+id/tvTitle"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="the one with Morty" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:ellipsize="end"
+            android:maxLength="18"
+            android:maxLines="1"
+            android:textSize="18sp"
+            tools:text="the one with Morty" />
+
+        <TextView
+            android:id="@+id/tvEpisode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Episode 06"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
 
     <View
         android:layout_width="match_parent"
@@ -22,5 +42,7 @@
         android:id="@+id/tvDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="1989/3/17" />
+        android:layout_gravity="center_vertical"
+        android:text="March 17rd 1989"
+        android:textSize="16sp" />
 </LinearLayout>

@@ -1,44 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/llContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="15dp"
-    android:id="@+id/llContainer"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="10dp">
 
-    <ImageView
-        android:id="@+id/imgCharacter"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginRight="10dp"/>
-    <TextView
-        android:id="@+id/tvName"
+    <FrameLayout
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginRight="10dp" >
+
+        <ImageView
+            android:id="@+id/imgCharacter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+        <ImageView
+            android:id="@+id/imgDead"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/dead"
+            android:layout_gravity="center"
+            android:visibility="invisible"
+            android:background="#88FFFFFF"
+            tools:visibility="visible" />
+
+    </FrameLayout>
+
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:maxLength="18"
-        android:ellipsize="end"
-        tools:text="Perspolisioos" />
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:ellipsize="end"
+            android:maxLength="18"
+            android:maxLines="1"
+            android:layout_marginBottom="10dp"
+            tools:text="Perspolisioos" />
+        <TextView
+            android:id="@+id/tvSpecies"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:ellipsize="end"
+            android:maxLength="15"
+            android:maxLines="1"
+            android:text="Homo Sapian" />
+    </LinearLayout>
+
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"></View>
 
-    <TextView
-        android:id="@+id/tvSpecies"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:maxLength="15"
-        android:ellipsize="end"
-        android:text="Homo Sapian" />
+
 
     <Button
         android:id="@+id/btnKill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:text="kill"/>
+        android:layout_gravity="center_vertical"
+        android:visibility="invisible"
+        tools:visibility="visible"
+        android:text="kill" />
 </LinearLayout>

@@ -3,6 +3,7 @@ package com.gustlogix.rickandmorty.view.characterdetails;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
 
     public static final String CHARACTER_DETAILS_ARG = "character_details";
     ImageView imgCharacter;
+    ImageView imgDeadStamp;
     TextView tvName;
     TextView tvSpecies;
     TextView tvStatus;
@@ -32,6 +34,7 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
 
 
         imgCharacter = findViewById(R.id.imgCharacter);
+        imgDeadStamp = findViewById(R.id.imgDeadStamp);
         tvName = findViewById(R.id.tvName);
         tvSpecies = findViewById(R.id.tvSpecies);
         tvStatus = findViewById(R.id.tvStatus);
@@ -55,8 +58,12 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
         tvGender.setText(characterDetails.getGender());
         tvSpecies.setText(characterDetails.getSpecies());
         if (characterDetails.getIsKilledByUser() != null && characterDetails.getIsKilledByUser()) {
-            tvStatus.setText("Killed By You :/");
+            tvStatus.setText(getString(R.string.killed_by));
+            imgDeadStamp.setVisibility(View.VISIBLE);
         } else {
+            if (characterDetails.getStatus().toLowerCase().equals("dead")) {
+                imgDeadStamp.setVisibility(View.VISIBLE);
+            }
             tvStatus.setText(characterDetails.getStatus());
         }
         imageDownloader.loadImage(characterDetails.getImage(), imgCharacter);
