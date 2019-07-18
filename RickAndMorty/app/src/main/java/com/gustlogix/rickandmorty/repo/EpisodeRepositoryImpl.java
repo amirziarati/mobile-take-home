@@ -67,6 +67,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
 
     @Override
     public void getMultipleEpisodes(final List<Integer> ids, final RepositoryCallback<List<EpisodeResult>> callback) {
+
         remoteService.fetchMultipleEpisodes(ids, new RemoteRepositoryCallback<List<EpisodeResult>>() {
             @Override
             public void onSuccess(final List<EpisodeResult> data) {
@@ -85,26 +86,29 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
                         Log.i("R&M", "error while caching episodes to database : " + e.toString());
                     }
                 });
+
             }
 
             @Override
             public void onError(Exception e) {
-                localService.fetchMultipleEpisodes(ids, new LocalRepositoryCallback<List<EpisodeResult>>() {
-                    @Override
-                    public void onSuccess(List<EpisodeResult> data) {
-                        Response<List<EpisodeResult>> response = new Response<List<EpisodeResult>>();
-                        response.setOnline(false);
-                        response.setResult(data);
-                        callback.onSuccess(response);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        callback.onError(e);
-                    }
-                });
             }
         });
+
+        localService.fetchMultipleEpisodes(ids, new LocalRepositoryCallback<List<EpisodeResult>>() {
+            @Override
+            public void onSuccess(List<EpisodeResult> data) {
+                Response<List<EpisodeResult>> response = new Response<List<EpisodeResult>>();
+                response.setOnline(false);
+                response.setResult(data);
+                callback.onSuccess(response);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onError(e);
+            }
+        });
+
     }
 
     @Override
@@ -134,21 +138,24 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
 
             @Override
             public void onError(Exception e) {
-                localService.fetchAllEpisodes(page, 20, new LocalRepositoryCallback<AllEpisodeResponse>() {
-                    @Override
-                    public void onSuccess(AllEpisodeResponse data) {
-                        Response<AllEpisodeResponse> response = new Response<AllEpisodeResponse>();
-                        response.setOnline(false);
-                        response.setResult(data);
-                        callback.onSuccess(response);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        callback.onError(e);
-                    }
-                });
+                callback.onError(e);
             }
         });
+
+        localService.fetchAllEpisodes(page, 20, new LocalRepositoryCallback<AllEpisodeResponse>() {
+            @Override
+            public void onSuccess(AllEpisodeResponse data) {
+                Response<AllEpisodeResponse> response = new Response<AllEpisodeResponse>();
+                response.setOnline(false);
+                response.setResult(data);
+                callback.onSuccess(response);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onError(e);
+            }
+        });
+
     }
 }

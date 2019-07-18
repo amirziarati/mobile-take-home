@@ -61,7 +61,7 @@ public class CharacterDetailActivity extends Activity implements CharacterDetail
             tvStatus.setText(getString(R.string.killed_by));
             imgDeadStamp.setVisibility(View.VISIBLE);
         } else {
-            if (characterDetails.getStatus().toLowerCase().equals("dead")) {
+            if (characterDetails.getStatus().toLowerCase().equals(getString(R.string.dead))) {
                 imgDeadStamp.setVisibility(View.VISIBLE);
             }
             tvStatus.setText(characterDetails.getStatus());

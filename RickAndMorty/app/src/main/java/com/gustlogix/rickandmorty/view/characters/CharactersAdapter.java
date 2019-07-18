@@ -22,10 +22,12 @@ public class CharactersAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private OnItemInteractionListener onItemInteractionListener;
     private ImageDownloader imageDownloader;
+    private Context context;
 
     CharactersAdapter(Context context, ImageDownloader imageDownloader, List<CharacterResult> characters, OnItemInteractionListener onItemInteractionListener) {
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.context = context;
         this.characters = characters;
         this.onItemInteractionListener = onItemInteractionListener;
         this.imageDownloader = imageDownloader;
@@ -70,7 +72,7 @@ public class CharactersAdapter extends BaseAdapter {
         holder.tvName.setText(getItem(position).getName());
         holder.tvSpecies.setText(getItem(position).getSpecies());
         if ((getItem(position).getIsKilledByUser() != null && getItem(position).getIsKilledByUser()) ||
-                getItem(position).getStatus().trim().toLowerCase().equals("dead")) {
+                getItem(position).getStatus().trim().toLowerCase().equals(context.getString(R.string.dead))) {
             holder.llContainer.setBackgroundResource(R.color.colorAccent);
             holder.imgDead.setVisibility(View.VISIBLE);
             holder.btnKill.setVisibility(View.INVISIBLE);

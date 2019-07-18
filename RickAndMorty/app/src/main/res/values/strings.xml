@@ -7,4 +7,8 @@
     <string name="location">Location:</string>
     <string name="killed_by">Killed By You :/</string>
     <string name="details">Details</string>
+    <string name="dead">dead</string>
+    <string name="fetch_problem_error">There was a problem fetching data !!!</string>
+    <string name="character_kill_error">Apparently character is too tough to kill</string>
+    <string name="no_more_data_warning">No more data available</string>
 </resources>

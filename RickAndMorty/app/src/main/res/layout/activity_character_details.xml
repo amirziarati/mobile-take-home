@@ -26,14 +26,6 @@
                     android:scaleType="centerCrop"
                     tools:src="@mipmap/ic_launcher" />
 
-                <View
-                    android:id="@+id/viewShadow"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#88FFFFFF"
-                    android:visibility="invisible"
-                    tools:visibility="visible" />
-
                 <ImageView
                     android:id="@+id/imgDeadStamp"
                     android:layout_width="match_parent"
@@ -41,6 +33,7 @@
                     android:layout_gravity="bottom|right"
                     android:scaleType="centerInside"
                     android:src="@drawable/dead"
+                    android:background="#88FFFFFF"
                     android:visibility="invisible"
                     tools:visibility="visible" />
 

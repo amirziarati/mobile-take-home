@@ -34,6 +34,7 @@ import com.gustlogix.rickandmorty.repo.remote.imagedownloader.ImageDownloader;
 import com.gustlogix.rickandmorty.repo.remote.imagedownloader.ImageDownloaderImpl;
 import com.gustlogix.rickandmorty.repo.remote.network.JsonDeserializer;
 import com.gustlogix.rickandmorty.repo.remote.network.NetworkServiceImpl;
+import com.gustlogix.rickandmorty.view.ResourceProviderImpl;
 import com.gustlogix.rickandmorty.view.characterdetails.CharacterDetailsPresenter;
 import com.gustlogix.rickandmorty.view.characterdetails.CharacterDetailsPresenterImpl;
 import com.gustlogix.rickandmorty.view.characterdetails.CharacterDetailsView;
@@ -70,7 +71,11 @@ public class SimpleServiceLocator {
     }
 
     public EpisodesPresenter getEpisodePresenter(EpisodesView episodesView) {
-        return new EpisodesPresenterImpl(episodesView, getEpisodeRepository());
+        return new EpisodesPresenterImpl(episodesView, getEpisodeRepository(), getResourceProvider());
+    }
+
+    private ResourceProviderImpl getResourceProvider() {
+        return new ResourceProviderImpl(getApplicationContext());
     }
 
     private EpisodeRepository getEpisodeRepository() {
@@ -118,7 +123,7 @@ public class SimpleServiceLocator {
     }
 
     public CharactersPresenter getCharacterPresenter(CharactersView charactersView) {
-        return new CharactersPresenterImpl(charactersView, getCharacterRepository());
+        return new CharactersPresenterImpl(charactersView, getCharacterRepository(), getResourceProvider());
     }
 
     private CharacterRepository getCharacterRepository() {
