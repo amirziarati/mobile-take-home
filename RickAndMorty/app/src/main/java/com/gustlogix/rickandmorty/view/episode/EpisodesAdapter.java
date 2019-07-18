@@ -50,6 +50,7 @@ public class EpisodesAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.tvDate = (TextView) convertView.findViewById(R.id.tvDate);
             holder.tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
+            holder.tvEpisode = (TextView) convertView.findViewById(R.id.tvEpisode);
             holder.llContainer = (LinearLayout) convertView.findViewById(R.id.llContainer);
 
             convertView.setTag(holder);
@@ -59,6 +60,7 @@ public class EpisodesAdapter extends BaseAdapter {
 
         holder.tvTitle.setText(getItem(position).getName());
         holder.tvDate.setText(getItem(position).getAirDate());
+        holder.tvEpisode.setText(getItem(position).getEpisode());
         holder.llContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,6 +78,7 @@ public class EpisodesAdapter extends BaseAdapter {
 
     private static class ViewHolder {
         TextView tvTitle;
+        TextView tvEpisode;
         TextView tvDate;
         LinearLayout llContainer;
     }
