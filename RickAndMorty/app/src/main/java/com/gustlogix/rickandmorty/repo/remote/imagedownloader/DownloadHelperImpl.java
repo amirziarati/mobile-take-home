@@ -18,8 +18,8 @@ import java.util.HashMap;
 public class DownloadHelperImpl implements DownloadHelper {
 
     private String downloadPath;
-    FileCacheManager fileCacheManager;
-    HashMap<String, DownloadInfo> mapFileNameDownloadingFileInfo = new HashMap<>();
+    private FileCacheManager fileCacheManager;
+    private HashMap<String, DownloadInfo> mapFileNameDownloadingFileInfo = new HashMap<>();
     private static DownloadHelperImpl instance;
 
     private DownloadHelperImpl(String downloadPath, FileCacheManager fileCacheManager) {
@@ -102,14 +102,14 @@ public class DownloadHelperImpl implements DownloadHelper {
     private DownloadResult downloadFile(DownloadInfo downloadInfo) {
         try {
             URL url = new URL(downloadInfo.getUrl());
-            InputStream in = null;
+            InputStream in;
             in = url.openStream();
             File file = new File(downloadInfo.fileName);
             mapFileNameDownloadingFileInfo.put(downloadInfo.getUrl(), downloadInfo);
             FileOutputStream fos = new FileOutputStream(file);
 
             System.out.println("reading from resource and writing to file...");
-            int length = -1;
+            int length;
             byte[] buffer = new byte[1024];// buffer for portion of data from connection
             while ((length = in.read(buffer)) > -1) {
                 fos.write(buffer, 0, length);
@@ -128,24 +128,24 @@ public class DownloadHelperImpl implements DownloadHelper {
         private DownloadInfo downloadInfo;
         private Exception exception;
 
-        public DownloadResult(DownloadInfo downloadInfo, Exception exception) {
+        DownloadResult(DownloadInfo downloadInfo, Exception exception) {
             this.downloadInfo = downloadInfo;
             this.exception = exception;
         }
 
-        public DownloadInfo getDownloadInfo() {
+        DownloadInfo getDownloadInfo() {
             return downloadInfo;
         }
 
-        public void setDownloadInfo(DownloadInfo downloadInfo) {
+        void setDownloadInfo(DownloadInfo downloadInfo) {
             this.downloadInfo = downloadInfo;
         }
 
-        public Exception getException() {
+        Exception getException() {
             return exception;
         }
 
-        public void setException(Exception exception) {
+        void setException(Exception exception) {
             this.exception = exception;
         }
     }
@@ -155,33 +155,33 @@ public class DownloadHelperImpl implements DownloadHelper {
         private String fileName;
         private String url;
 
-        public DownloadInfo(DownloadManagerCallback callback, String fileName, String url) {
+        DownloadInfo(DownloadManagerCallback callback, String fileName, String url) {
             this.callbacks.add(callback);
             this.fileName = fileName;
             this.url = url;
         }
 
-        public String getUrl() {
+        String getUrl() {
             return url;
         }
 
-        public void setUrl(String url) {
+        void setUrl(String url) {
             this.url = url;
         }
 
-        public ArrayList<DownloadManagerCallback> getCallbacks() {
+        ArrayList<DownloadManagerCallback> getCallbacks() {
             return callbacks;
         }
 
-        public void addCallback(DownloadManagerCallback callback) {
+        void addCallback(DownloadManagerCallback callback) {
             this.callbacks.add(callback);
         }
 
-        public String getFileName() {
+        String getFileName() {
             return fileName;
         }
 
-        public void setFileName(String fileName) {
+        void setFileName(String fileName) {
             this.fileName = fileName;
         }
     }

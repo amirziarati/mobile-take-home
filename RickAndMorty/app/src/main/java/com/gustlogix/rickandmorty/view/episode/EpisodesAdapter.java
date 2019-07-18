@@ -15,11 +15,11 @@ import java.util.List;
 
 public class EpisodesAdapter extends BaseAdapter {
 
-    List<EpisodeResult> episodes;
-    LayoutInflater inflater;
-    OnItemClickListener onItemClickListener;
+    private List<EpisodeResult> episodes;
+    private LayoutInflater inflater;
+    private OnItemClickListener onItemClickListener;
 
-    public EpisodesAdapter(Context context, List<EpisodeResult> episodes, OnItemClickListener onItemClickListener) {
+    EpisodesAdapter(Context context, List<EpisodeResult> episodes, OnItemClickListener onItemClickListener) {
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.episodes = episodes;
@@ -69,15 +69,15 @@ public class EpisodesAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void addEpisodes(List<EpisodeResult> results) {
+    void addEpisodes(List<EpisodeResult> results) {
         episodes.addAll(results);
         notifyDataSetChanged();
     }
 
     private static class ViewHolder {
-        public TextView tvTitle;
-        public TextView tvDate;
-        public LinearLayout llContainer;
+        TextView tvTitle;
+        TextView tvDate;
+        LinearLayout llContainer;
     }
 
     interface OnItemClickListener {

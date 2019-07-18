@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ApplicationThreadPool {
-    static ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private static ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     public static <T> void execute(final Task<T> task, final TaskCallback<T> callback) {
         final Handler callerThreadHandler = new Handler();

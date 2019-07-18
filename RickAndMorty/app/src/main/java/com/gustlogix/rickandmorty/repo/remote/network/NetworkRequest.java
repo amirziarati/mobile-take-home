@@ -18,19 +18,19 @@ public class NetworkRequest {
         this.queryParameters = queryParameters;
     }
 
-    public void setMethod(String method) {
+    private void setMethod(String method) {
         this.method = method;
     }
 
-    public String getMethod() {
+    String getMethod() {
         return method;
     }
 
-    public String getBody() {
+    String getBody() {
         return body;
     }
 
-    public void setBody(String body) {
+    private void setBody(String body) {
         this.body = body;
     }
 
@@ -66,9 +66,9 @@ public class NetworkRequest {
         public Builder setQueryParameters(QueryParameter... parameters) {
             if (parameters != null) {
                 List<QueryParameter> list = new ArrayList<>();
-                for (int i = 0; i < parameters.length; i++) {
-                    if (parameters[i] != null)
-                        list.add(parameters[i]);
+                for (QueryParameter parameter : parameters) {
+                    if (parameter != null)
+                        list.add(parameter);
                 }
                 networkRequest.setQueryParameters(list);
             }
@@ -99,19 +99,19 @@ public class NetworkRequest {
             this.value = value;
         }
 
-        public String getKey() {
+        String getKey() {
             return key;
         }
 
-        public void setKey(String key) {
+        void setKey(String key) {
             this.key = key;
         }
 
-        public String getValue() {
+        String getValue() {
             return value;
         }
 
-        public void setValue(String value) {
+        void setValue(String value) {
             this.value = value;
         }
 

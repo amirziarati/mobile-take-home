@@ -57,7 +57,7 @@ public class SimpleServiceLocator {
 
     public static SimpleServiceLocator getInstance() {
         if (context == null) {
-            new IllegalStateException("the service locator has to be initialized in Application class' onCreate !!");
+            throw new IllegalStateException("the service locator has to be initialized in Application class' onCreate !!");
         }
         if (instance == null)
             instance = new SimpleServiceLocator();
@@ -162,8 +162,9 @@ public class SimpleServiceLocator {
     }
 
     private FileCacheManager getFileCacheManager() {
-        return new FileCacheManagerImpl(getFileCacheLocalService(), getCacheDirectoryPath(), getCacheSizeInMegaBytes());
+        return new FileCacheManagerImpl(getFileCacheLocalService(), getCacheDirectoryPath(), getCacheSizeInMegaBytes(), getCacheThresholdPercent());
     }
+
 
     private FileCacheLocalService getFileCacheLocalService() {
         return new FileCacheLocalServiceImpl(new DbHelperImpl(getApplicationContext()));
@@ -179,5 +180,9 @@ public class SimpleServiceLocator {
 
     private int getCacheSizeInMegaBytes() {
         return 20;
+    }
+
+    private int getCacheThresholdPercent() {
+        return 30;
     }
 }

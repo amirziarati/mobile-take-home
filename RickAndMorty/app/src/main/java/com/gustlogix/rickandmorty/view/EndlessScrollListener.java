@@ -9,7 +9,7 @@ public abstract class EndlessScrollListener implements AbsListView.OnScrollListe
     private boolean isLoading = true;
     private int startPage = 0;
 
-    public EndlessScrollListener(int threshold, int startPage) {
+    protected EndlessScrollListener(int threshold, int startPage) {
         this.threshold = threshold;
         this.startPage = startPage;
         this.currentPage = startPage;

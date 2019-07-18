@@ -40,7 +40,7 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                 characterLocalService.fetchSingleCharacter(id, new LocalRepositoryCallback<CharacterResult>() {
                     @Override
                     public void onSuccess(CharacterResult data) {
-                        Response response = new Response();
+                        Response<CharacterResult> response = new Response<CharacterResult>();
                         response.setOnline(false);
                         response.setResult(data);
                         callback.onSuccess(response);
@@ -74,7 +74,7 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                     @Override
                     public void onSuccess(HashMap<Integer, Boolean> mapCharacterKilledStatus) {
                         character.setIsKilledByUser(mapCharacterKilledStatus.get(character.getId()));
-                        Response response = new Response();
+                        Response<CharacterResult> response = new Response<CharacterResult>();
                         response.setOnline(true);
                         response.setResult(character);
                         callback.onSuccess(response);
@@ -106,7 +106,7 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                 characterLocalService.fetchMultipleCharacter(ids, new LocalRepositoryCallback<List<CharacterResult>>() {
                     @Override
                     public void onSuccess(List<CharacterResult> data) {
-                        Response response = new Response();
+                        Response<List<CharacterResult>> response = new Response<List<CharacterResult>>();
                         response.setOnline(false);
                         if (data.size() == ids.size()) {//if we dont have the complete list of characters offline dont return any of them
                             response.setResult(data);
@@ -145,7 +145,7 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                             character.setIsKilledByUser(mapCharacterKilledStatus.get(character.getId()));
                         }
 
-                        Response response = new Response();
+                        Response<List<CharacterResult>> response = new Response<List<CharacterResult>>();
                         response.setOnline(true);
                         response.setResult(characterResults);
                         callback.onSuccess(response);

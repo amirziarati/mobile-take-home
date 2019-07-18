@@ -27,14 +27,14 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    synchronized public void onCreate(SQLiteDatabase db) {
         db.execSQL(DB.CHARACTER.CREATE_TABLE_COMMAND);
         db.execSQL(DB.EPISODE.CREATE_TABLE_COMMAND);
         db.execSQL(DB.FILECACHE.CREATE_TABLE_COMMAND);
     }
 
     @Override
-    public void deleteAllCharacters() {
+    synchronized public void deleteAllCharacters() {
         SQLiteDatabase db = getWritableDatabase();
         try {
             db.delete(DB.CHARACTER.TABLE_NAME, null, null);
@@ -46,7 +46,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public void deleteAllEpisodes() {
+    synchronized public void deleteAllEpisodes() {
         SQLiteDatabase db = getWritableDatabase();
         try {
             db.delete(DB.EPISODE.TABLE_NAME, null, null);
@@ -58,7 +58,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public void deleteAllCacheEntries() {
+    synchronized public void deleteAllCacheEntries() {
         SQLiteDatabase db = getWritableDatabase();
         try {
             db.delete(DB.FILECACHE.TABLE_NAME, null, null);
@@ -70,7 +70,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public CharacterResult fetchSingleCharacter(int id) {
+    synchronized public CharacterResult fetchSingleCharacter(int id) {
         CharacterResult characterResult = null;
         SQLiteDatabase db = getReadableDatabase();
         try {
@@ -96,7 +96,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public List<CharacterResult> fetchMultipleCharacter(List<Integer> characterIds) {
+    synchronized public List<CharacterResult> fetchMultipleCharacter(List<Integer> characterIds) {
         List<CharacterResult> characterResult = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         try {
@@ -132,7 +132,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public AllCharacterResponse fetchAllCharacters(int page, int pageSize) {
+    synchronized public AllCharacterResponse fetchAllCharacters(int page, int pageSize) {
         AllCharacterResponse allCharacterResponse = new AllCharacterResponse();
         SQLiteDatabase db = getReadableDatabase();
         try {
@@ -165,7 +165,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public EpisodeResult fetchSingleEpisode(int id) {
+    synchronized public EpisodeResult fetchSingleEpisode(int id) {
         EpisodeResult episodeResult = null;
         SQLiteDatabase db = getReadableDatabase();
         try {
@@ -191,7 +191,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public List<EpisodeResult> fetchMultipleEpisode(List<Integer> characterIds) {
+    synchronized public List<EpisodeResult> fetchMultipleEpisode(List<Integer> characterIds) {
         List<EpisodeResult> episodes = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         try {
@@ -227,7 +227,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public AllEpisodeResponse fetchAllEpisodes(int page, int pageSize) {
+    synchronized public AllEpisodeResponse fetchAllEpisodes(int page, int pageSize) {
         AllEpisodeResponse allEpisodeResponse = new AllEpisodeResponse();
         SQLiteDatabase db = getReadableDatabase();
         try {
@@ -260,7 +260,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public long insertOrUpdateCharacter(CharacterResult characterResult) {
+    synchronized public long insertOrUpdateCharacter(CharacterResult characterResult) {
         SQLiteDatabase db = getWritableDatabase();
         try {
             return executeInsertOrUpdateCharacter(characterResult, db);
@@ -273,7 +273,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public void insertOrUpdateCharacters(List<CharacterResult> characterResults) {
+    synchronized public void insertOrUpdateCharacters(List<CharacterResult> characterResults) {
         SQLiteDatabase db = getWritableDatabase();
         for (CharacterResult characterResult : characterResults) {
             try {
@@ -317,7 +317,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public long insertOrUpdateEpisode(EpisodeResult episodeResult) {
+    synchronized public long insertOrUpdateEpisode(EpisodeResult episodeResult) {
         SQLiteDatabase db = getWritableDatabase();
         try {
             return executeInsertOrUpdateEpisode(episodeResult, db);
@@ -330,7 +330,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public void insertOrUpdateEpisodes(List<EpisodeResult> episodeResults) {
+    synchronized public void insertOrUpdateEpisodes(List<EpisodeResult> episodeResults) {
         SQLiteDatabase db = getWritableDatabase();
         for (EpisodeResult episodeResult : episodeResults) {
             try {
@@ -359,7 +359,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public long insertOrUpdateFileCache(FileCacheEntry fileCacheEntry) {
+    synchronized public long insertOrUpdateFileCache(FileCacheEntry fileCacheEntry) {
         SQLiteDatabase db = getWritableDatabase();
         try {
             return executeInsertOrUpdateFileCache(fileCacheEntry, db);
@@ -384,7 +384,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public long removeFileCache(FileCacheEntry fileCacheEntry) {
+    synchronized public long removeFileCache(FileCacheEntry fileCacheEntry) {
         SQLiteDatabase db = getWritableDatabase();
         try {
             return db.delete(DB.FILECACHE.TABLE_NAME, DB.FILECACHE.C_URL + " = ?", new String[]{fileCacheEntry.getUrl()});
@@ -397,7 +397,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public FileCacheEntry fetchFileCache(String url) {
+    synchronized public FileCacheEntry fetchFileCache(String url) {
         FileCacheEntry fileCacheEntry = null;
         SQLiteDatabase db = getReadableDatabase();
         try {
@@ -423,7 +423,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
     }
 
     @Override
-    public List<FileCacheEntry> fetchFileCaches() {
+    synchronized public List<FileCacheEntry> fetchFileCaches() {
         SQLiteDatabase db = getReadableDatabase();
         try {
             List<FileCacheEntry> fileCaches = new ArrayList<>();
@@ -454,8 +454,7 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
             sb.append(episode);
             sb.append(",");
         }
-        String episodes = removeLastChar(sb.toString());
-        return episodes;
+        return removeLastChar(sb.toString());
     }
 
     private String getCommaSeparatedCharacters(EpisodeResult episodeResult) {
@@ -537,12 +536,8 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
         if (commaSepratedEpisodes.isEmpty())
             return new ArrayList<>();
 
-        List<String> episodes = new ArrayList<>();
         String[] commaSeparatedEpisodes = commaSepratedEpisodes.split(",");
-        for (String episode : commaSeparatedEpisodes) {
-            episodes.add(episode);
-        }
-        return episodes;
+        return new ArrayList<>(Arrays.asList(commaSeparatedEpisodes));
     }
 
     private List<String> extractCharacters(Cursor cursor) {
@@ -550,15 +545,13 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
         if (commaSeparatedCharactersString == null)
             return null;
         if (commaSeparatedCharactersString.isEmpty())
-            return new ArrayList<String>();
-        List<String> characters = new ArrayList<>();
+            return new ArrayList<>();
         String[] commaSeparatedCharacters = commaSeparatedCharactersString.split(",");
-        characters.addAll(Arrays.asList(commaSeparatedCharacters));
-        return characters;
+        return new ArrayList<>(Arrays.asList(commaSeparatedCharacters));
     }
 
     private String[] getCharacterProjection() {
-        String[] projection = {
+        return new String[]{
                 DB.CHARACTER.C_ID,
                 DB.CHARACTER.C_NAME,
                 DB.CHARACTER.C_STATUS,
@@ -575,11 +568,10 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
                 DB.CHARACTER.C_IMAGE,
                 DB.CHARACTER.C_IS_KILLED_BY_USER
         };
-        return projection;
     }
 
     private String[] getEpisodeProjection() {
-        String[] projection = {
+        return new String[]{
                 DB.EPISODE.C_ID,
                 DB.EPISODE.C_NAME,
                 DB.EPISODE.C_AIR_DATE,
@@ -588,16 +580,14 @@ public class DbHelperImpl extends SQLiteOpenHelper implements DbHelper {
                 DB.EPISODE.C_URL,
                 DB.EPISODE.C_CREATED
         };
-        return projection;
     }
 
     private String[] getFileCacheProjection() {
-        String[] projection = {
+        return new String[]{
                 DB.FILECACHE.C_URL,
                 DB.FILECACHE.C_FILE_NAME,
                 DB.FILECACHE.C_LAST_RETRIEVED,
         };
-        return projection;
     }
 
     private String getCharacterSelection() {

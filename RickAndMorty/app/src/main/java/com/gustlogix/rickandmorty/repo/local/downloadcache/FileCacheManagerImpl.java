@@ -9,21 +9,23 @@ import java.util.List;
 
 public class FileCacheManagerImpl implements FileCacheManager {
 
-    FileCacheLocalService fileCacheLocalService;
-    String cacheDirectoryPath;
-    int cacheSizeInMegaBytes;
+    private FileCacheLocalService fileCacheLocalService;
+    private String cacheDirectoryPath;
+    private int cacheSizeInMegaBytes;
+    private int cacheThresholdPercent;
 
-    public FileCacheManagerImpl(FileCacheLocalService fileCacheLocalService, String cacheDirectoryPath, int cacheSizeInMegaBytes) {
+    public FileCacheManagerImpl(FileCacheLocalService fileCacheLocalService, String cacheDirectoryPath, int cacheSizeInMegaBytes, int cacheThresholdPercent) {
         this.fileCacheLocalService = fileCacheLocalService;
         this.cacheDirectoryPath = cacheDirectoryPath;
         this.cacheSizeInMegaBytes = cacheSizeInMegaBytes;
+        this.cacheThresholdPercent = cacheThresholdPercent;
     }
 
     public void cache(String url, String fileName) {
         if (new File(fileName).exists()) {
             fileCacheLocalService.insertOrUpdate(new FileCacheEntry(url, fileName, System.currentTimeMillis()));
             if (getFolderSizeInBytes(new File(cacheDirectoryPath)) > cacheSizeInMegaBytes * 1_000_000) {
-                removeCacheByPercentageOf(30);
+                removeCacheByPercentageOf(cacheThresholdPercent);
             }
         }
     }

@@ -28,7 +28,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
         remoteService.fetchSingleEpisode(id, new RemoteRepositoryCallback<EpisodeResult>() {
             @Override
             public void onSuccess(EpisodeResult episode) {
-                Response response = new Response();
+                Response<EpisodeResult> response = new Response<EpisodeResult>();
                 response.setOnline(true);
                 response.setResult(episode);
                 callback.onSuccess(response);
@@ -50,7 +50,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
                 localService.fetchSingleEpisode(id, new LocalRepositoryCallback<EpisodeResult>() {
                     @Override
                     public void onSuccess(EpisodeResult data) {
-                        Response response = new Response();
+                        Response<EpisodeResult> response = new Response<EpisodeResult>();
                         response.setOnline(false);
                         response.setResult(data);
                         callback.onSuccess(response);
@@ -70,7 +70,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
         remoteService.fetchMultipleEpisodes(ids, new RemoteRepositoryCallback<List<EpisodeResult>>() {
             @Override
             public void onSuccess(final List<EpisodeResult> data) {
-                Response response = new Response();
+                Response<List<EpisodeResult>> response = new Response<List<EpisodeResult>>();
                 response.setOnline(true);
                 response.setResult(data);
                 callback.onSuccess(response);
@@ -92,7 +92,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
                 localService.fetchMultipleEpisodes(ids, new LocalRepositoryCallback<List<EpisodeResult>>() {
                     @Override
                     public void onSuccess(List<EpisodeResult> data) {
-                        Response response = new Response();
+                        Response<List<EpisodeResult>> response = new Response<List<EpisodeResult>>();
                         response.setOnline(false);
                         response.setResult(data);
                         callback.onSuccess(response);
@@ -115,7 +115,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
                 localService.insertOrUpdateEpisodes(data.getResults(), new OnLocalDataUpdateCallback() {
                     @Override
                     public void onUpdateDone() {
-                        Response response = new Response();
+                        Response<AllEpisodeResponse> response = new Response<AllEpisodeResponse>();
                         response.setOnline(true);
                         response.setResult(data);
                         callback.onSuccess(response);
@@ -124,7 +124,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
                     @Override
                     public void onError(Exception e) {
                         e.printStackTrace();
-                        Response response = new Response();
+                        Response<AllEpisodeResponse> response = new Response<AllEpisodeResponse>();
                         response.setOnline(true);
                         response.setResult(data);
                         callback.onSuccess(response);
@@ -137,7 +137,7 @@ public class EpisodeRepositoryImpl implements EpisodeRepository {
                 localService.fetchAllEpisodes(page, 20, new LocalRepositoryCallback<AllEpisodeResponse>() {
                     @Override
                     public void onSuccess(AllEpisodeResponse data) {
-                        Response response = new Response();
+                        Response<AllEpisodeResponse> response = new Response<AllEpisodeResponse>();
                         response.setOnline(false);
                         response.setResult(data);
                         callback.onSuccess(response);

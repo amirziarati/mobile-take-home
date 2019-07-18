@@ -30,7 +30,7 @@ public class FileCacheEntry {
         return lastRetrievedTimeStamp;
     }
 
-    public void setLastRetrievedTimeStamp(long lastRetrievedTimeStamp) {
+    void setLastRetrievedTimeStamp(long lastRetrievedTimeStamp) {
         this.lastRetrievedTimeStamp = lastRetrievedTimeStamp;
     }
 }

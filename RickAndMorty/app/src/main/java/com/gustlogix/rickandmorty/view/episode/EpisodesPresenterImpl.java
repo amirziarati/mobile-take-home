@@ -7,10 +7,7 @@ import com.gustlogix.rickandmorty.dto.episode.AllEpisodeResponse;
 import com.gustlogix.rickandmorty.dto.episode.EpisodeResult;
 import com.gustlogix.rickandmorty.repo.EpisodeRepository;
 import com.gustlogix.rickandmorty.repo.RepositoryCallback;
-
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class EpisodesPresenterImpl implements EpisodesPresenter {
 
@@ -65,17 +62,5 @@ public class EpisodesPresenterImpl implements EpisodesPresenter {
     @Override
     public void onEpisodeClicked(EpisodeResult episodeResult) {
         view.navigateToCharactersView(episodeResult.getCharactersIds());
-    }
-
-    private ArrayList<Integer> getIdsFromUrls(List<String> characters) {
-        ArrayList<Integer> ids = new ArrayList<>();
-        for (String url : characters) {
-            if (url.endsWith("/")) {
-                url = url.substring(0, url.length() - 1);
-            }
-            String stringID = url.substring(url.lastIndexOf('/') + 1);
-            ids.add(Integer.parseInt(stringID));
-        }
-        return ids;
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class FileCacheLocalServiceImpl implements FileCacheLocalService {
 
-    DbHelper dbHelper;
+    private DbHelper dbHelper;
 
     public FileCacheLocalServiceImpl(DbHelper dbHelper) {
         this.dbHelper = dbHelper;

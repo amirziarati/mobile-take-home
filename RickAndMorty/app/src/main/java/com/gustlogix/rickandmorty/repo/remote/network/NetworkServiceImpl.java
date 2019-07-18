@@ -97,17 +97,16 @@ public class NetworkServiceImpl<T> implements NetworkService<T> {
             long endNetworkRequestTime = System.currentTimeMillis();
             Log.i(TAG, "Network request time in millis: " + (endNetworkRequestTime - startTimeNetworkRequest));
             long startDeserializeTime = System.currentTimeMillis();
-            T data = (T) jsonDeserializer.deserialize(sb.toString());
+            T data = jsonDeserializer.deserialize(sb.toString());
             long endDeserializationTime = System.currentTimeMillis();
             Log.i(TAG, "Deserialization time in millis: " + (endDeserializationTime - startDeserializeTime));
-            NetworkResponse<T> response = new NetworkResponse<>(statusCode, data);
-            return response;
+            return new NetworkResponse<>(statusCode, data);
         } catch (IOException e) {
             e.printStackTrace();
-            return new NetworkResponse<T>(e);
+            return new NetworkResponse<>(e);
         } catch (JSONException e) {
             e.printStackTrace();
-            return new NetworkResponse<T>(statusCode, e);
+            return new NetworkResponse<>(statusCode, e);
         } finally {
             Log.i(TAG, "Network call response -> code: " + statusCode);
             try {
@@ -131,47 +130,47 @@ public class NetworkServiceImpl<T> implements NetworkService<T> {
         private Exception error;
         private T response;
 
-        public NetworkResponse(Exception error) {
+        NetworkResponse(Exception error) {
             this.error = error;
         }
 
-        public NetworkResponse(int code, T response) {
+        NetworkResponse(int code, T response) {
             this.code = code;
             this.response = response;
         }
 
-        public NetworkResponse(int code, Exception error) {
+        NetworkResponse(int code, Exception error) {
             this.code = code;
             this.error = error;
         }
 
-        public NetworkResponse(int code, Exception error, T response) {
+        NetworkResponse(int code, Exception error, T response) {
             this.code = code;
             this.error = error;
             this.response = response;
         }
 
-        public int getCode() {
+        int getCode() {
             return code;
         }
 
-        public void setCode(int code) {
+        void setCode(int code) {
             this.code = code;
         }
 
-        public Exception getError() {
+        Exception getError() {
             return error;
         }
 
-        public void setError(Exception error) {
+        void setError(Exception error) {
             this.error = error;
         }
 
-        public T getResponse() {
+        T getResponse() {
             return response;
         }
 
-        public void setResponse(T response) {
+        void setResponse(T response) {
             this.response = response;
         }
     }
